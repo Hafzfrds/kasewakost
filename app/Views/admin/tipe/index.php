@@ -251,7 +251,6 @@
                     <th>No</th>
                     <th>Nama Tipe</th>
                     <th>Fasilitas</th>
-                    <th>Harga Tambahan</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -261,7 +260,6 @@
                     <td><?= $no++ ?></td>
                     <td><?= esc($p['nama_tipe']) ?></td>
                     <td><?= esc($p['fasilitas']) ?></td>
-                    <td>Rp <?= number_format($p['harga_tambahan'], 0, ',', '.') ?></td>
                     <td>
                         <div class="action-cell">
                             <a href="/admin/tipe/edit/<?= $p['id_tipe'] ?>" class="btn-edit">Edit</a>

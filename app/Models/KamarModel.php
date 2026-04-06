@@ -15,7 +15,7 @@ class KamarModel extends Model
         'harga',
         'status_kamar',
         'id_tipe',
-        'foto', // ✅ tambahin ini
+        'foto',
         'created_at',
         'updated_at'
     ];
@@ -23,16 +23,15 @@ class KamarModel extends Model
     protected $useTimestamps = true;
 
     // Join ke tipe kamar
-  public function getKamarWithTipe()
-{
-    return $this->select('
-            kamar.*, 
-            tipe_kamar.nama_tipe, 
-            tipe_kamar.fasilitas,
-            tipe_kamar.harga_tambahan,
-            (kamar.harga + IFNULL(tipe_kamar.harga_tambahan,0)) as total_harga
-        ')
-        ->join('tipe_kamar', 'tipe_kamar.id_tipe = kamar.id_tipe', 'left')
-        ->findAll();
-}
+    public function getKamarWithTipe()
+    {
+        return $this->select('
+                kamar.*, 
+                tipe_kamar.nama_tipe, 
+                tipe_kamar.fasilitas
+            ')
+            ->join('tipe_kamar', 'tipe_kamar.id_tipe = kamar.id_tipe', 'left')
+            ->orderBy('kamar.id_kamar', 'DESC')
+            ->findAll();
+    }
 }

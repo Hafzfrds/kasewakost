@@ -1,4 +1,4 @@
-<?= $this->extend('layout/sidebaradmin') ?>
+<?= $this->extend('layout/sidebarkasir') ?>
 <?= $this->section('content') ?>
 
 <style>
@@ -23,87 +23,19 @@
     font-weight: 700;
 }
 
-.btn-create {
-    background: #3b82c4;
+.btn-cart {
+    background: #2c3e50;
     color: white;
     padding: 10px 26px;
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
-}
-
-.btn-create:hover {
-    background: #2c6fad;
-}
-
-/* ===== SEARCH ===== */
-.search-container {
-    background-color: #3b82c4;
-    border-radius: 12px;
-    padding: 20px 24px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 28px;
-}
-
-.search-container input {
-    flex: 1;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
     font-size: 0.95rem;
-    color: #666;
-    outline: none;
-    background: #ffffff;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
-    font-style: italic;
 }
 
-.search-container input::placeholder {
-    color: #aaa;
-}
-
-.btn-search {
-    background-color: #ffffff;
-    color: #1a1a2e;
-    padding: 12px 28px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    white-space: nowrap;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.btn-search:hover {
-    background-color: #e8f0fe;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    color: #1a1a2e;
-    text-decoration: none;
-}
-
-.btn-reset {
-    background-color: #e05c6a;
-    color: #ffffff;
-    padding: 12px 22px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    white-space: nowrap;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.btn-reset:hover {
-    background-color: #c94d5a;
-    color: #ffffff;
+.btn-cart:hover {
+    background: #1a252f;
+    color: white;
     text-decoration: none;
 }
 
@@ -146,6 +78,7 @@
     font-weight: 700;
     color: white;
     margin-bottom: 2px;
+    font-size: 1rem;
 }
 
 .card-tipe {
@@ -158,6 +91,7 @@
 .card-info-row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-top: 8px;
     border-top: 1px solid rgba(255,255,255,0.3);
     padding-top: 6px;
@@ -172,6 +106,17 @@
     background-color: #d1fae5;
     color: #065f46;
     border: 1px solid #6ee7b7;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.badge-booking {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
     padding: 3px 10px;
     border-radius: 20px;
     font-size: 11px;
@@ -195,10 +140,11 @@
     display: flex;
     gap: 6px;
     margin-top: 8px;
+    flex-wrap: wrap;
 }
 
-.btn-edit {
-    background: #4caf7d;
+.btn-bayar {
+    background: #27ae60;
     color: #ffffff;
     padding: 6px 16px;
     border-radius: 6px;
@@ -208,25 +154,70 @@
     transition: opacity 0.2s ease, box-shadow 0.2s ease;
 }
 
-.btn-edit:hover {
+.btn-bayar:hover {
     opacity: 0.88;
-    box-shadow: 0 2px 8px rgba(76, 175, 125, 0.45);
+    box-shadow: 0 2px 8px rgba(39, 174, 96, 0.45);
     text-decoration: none;
     color: #ffffff;
 }
 
-.btn-delete {
-    background: #ef4444;
-    color: white;
+.btn-booking {
+    background: #f39c12;
+    color: #ffffff;
     padding: 6px 16px;
     border-radius: 6px;
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
-    transition: opacity 0.2s ease, box-shadow 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
-.btn-delete:hover {
+.btn-booking:hover {
+    opacity: 0.88;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.btn-pelunasan {
+    background: #8e44ad;
+    color: #ffffff;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.btn-pelunasan:hover {
+    opacity: 0.88;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.btn-terisi {
+    background: #e74c3c;
+    color: #ffffff;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: default;
+}
+
+.btn-tambah {
+    background: #3498db;
+    color: #ffffff;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.btn-tambah:hover {
     opacity: 0.88;
     text-decoration: none;
     color: #ffffff;
@@ -243,16 +234,10 @@
     .card-grid {
         grid-template-columns: 1fr;
     }
-}
-.badge-booking {
-    background-color: #fef3c7;
-    color: #92400e;
-    border: 1px solid #fcd34d;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    display: inline-block;
+
+    .page-wrapper {
+        padding: 20px 16px;
+    }
 }
 </style>
 
@@ -260,20 +245,13 @@
 
     <!-- HEADER -->
     <div class="page-header">
-        <h1>Kelola Kamar</h1>
-        <a href="/admin/kamar/create" class="btn-create">Create</a>
+        <h1>Produk</h1>
+       <a href="/kasir/transaksi/keranjang" class="btn btn-warning">🛒 Lihat Keranjang</a>
     </div>
-
-    <!-- SEARCH -->
-    <form method="get" action="/admin/kamar" class="search-container">
-        <input type="text" name="keyword" value="<?= esc($keyword ?? '') ?>" placeholder="Cari nama kamar / nomor / tipe...">
-        <button type="submit" class="btn-search">Search</button>
-        <a href="/admin/kamar" class="btn-reset">Reset</a>
-    </form>
 
     <!-- GRID -->
     <div class="card-grid">
-        <?php foreach ($kamar as $k): ?>
+        <?php foreach($kamar as $k): ?>
         <div class="card-kamar">
 
             <!-- IMAGE -->
@@ -285,7 +263,7 @@
 
             <!-- BODY -->
             <div class="card-body">
-                <div class="card-nama"><?= esc($k['nama_kamar']) ?></div>
+                <div class="card-nama">Kamar <?= esc($k['nomor_kamar']) ?></div>
 
                 <div class="card-tipe">
                     <strong><?= esc($k['nama_tipe'] ?? '-') ?>:</strong>
@@ -294,25 +272,31 @@
 
                 <div class="card-info-row">
                     <div class="card-harga">
-                        Rp <?= number_format($k['harga'], 0, ',', '.') ?>
+                       Rp <?= number_format($k['harga'], 0, ',', '.') ?>
                     </div>
 
-                   <?php if ($k['status_kamar'] == 'tersedia'): ?>
-    <div class="badge-tersedia">Ready</div>
-
-<?php elseif ($k['status_kamar'] == 'booking'): ?>
-    <div class="badge-booking">Booking</div>
-
-<?php else: ?>
-    <div class="badge-terisi">Terisi</div>
-<?php endif; ?>
+                    <?php if ($k['status_kamar'] == 'tersedia'): ?>
+                        <span class="badge-tersedia">Tersedia</span>
+                    <?php elseif ($k['status_kamar'] == 'booking'): ?>
+                        <span class="badge-booking">Booking</span>
+                    <?php else: ?>
+                        <span class="badge-terisi">Terisi</span>
+                    <?php endif; ?>
                 </div>
 
                 <div class="card-actions">
-                    <a href="/admin/kamar/edit/<?= $k['id_kamar'] ?>" class="btn-edit">Edit</a>
-                    <a href="/admin/kamar/delete/<?= $k['id_kamar'] ?>"
-                       onclick="return confirm('Yakin hapus kamar ini?')"
-                       class="btn-delete">Delete</a>
+                    <?php if($k['status_kamar'] == 'tersedia'): ?>
+                     <a href="/kasir/transaksi/bayar/<?= $k['id_kamar'] ?>" class="btn-bayar">Bayar</a>
+<a href="/kasir/transaksi/booking/<?= $k['id_kamar'] ?>" class="btn-booking">Booking</a>
+
+                    <?php elseif($k['status_kamar'] == 'booking'): ?>
+                        <a href="/kasir/transaksi/pelunasan/<?= $k['id_kamar'] ?>" class="btn-pelunasan">Pelunasan</a>
+
+                    <?php else: ?>
+                        <button class="btn-terisi" disabled>Terisi</button>
+                    <?php endif; ?>
+
+                  <a href="/kasir/transaksi/tambahKeranjang/<?= $k['id_kamar'] ?>" class="btn-tambah">+</a>
                 </div>
             </div>
 

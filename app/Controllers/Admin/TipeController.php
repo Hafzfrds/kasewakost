@@ -14,69 +14,92 @@ class TipeController extends BaseController
         $this->tipeModel = new TipeModel();
     }
 
-    // 📋 List tipe kamar
-  public function index()
-{
-    $keyword = $this->request->getGet('keyword');
+    public function index()
+    {
+        $keyword = $this->request->getGet('keyword');
 
-    if ($keyword) {
-        $data['tipe'] = $this->tipeModel
-            ->like('nama_tipe', $keyword)
-            ->orLike('fasilitas', $keyword)
-            ->orderBy('id_tipe', 'DESC') // 🔥 terbaru di atas
-            ->findAll();
-    } else {
-        $data['tipe'] = $this->tipeModel
-            ->orderBy('id_tipe', 'DESC') // 🔥 terbaru di atas
-            ->findAll();
+        if ($keyword) {
+            $data['tipe'] = $this->tipeModel
+                ->groupStart()
+                    ->like('nama_tipe', $keyword)
+                    ->orLike('fasilitas', $keyword)
+                ->groupEnd()
+                ->orderBy('id_tipe', 'DESC')
+                ->findAll();
+        } else {
+            $data['tipe'] = $this->tipeModel
+                ->orderBy('id_tipe', 'DESC')
+                ->findAll();
+        }
+
+        $data['keyword'] = $keyword;
+
+        return view('admin/tipe/index', $data);
     }
 
-    $data['keyword'] = $keyword;
-
-    return view('admin/tipe/index', $data);
-}
-
-    // ➕ Form tambah
     public function create()
     {
         return view('admin/tipe/create');
     }
 
-    // 💾 Simpan
+    // SIMPAN
     public function store()
     {
         $this->tipeModel->save([
-            'nama_tipe'      => $this->request->getPost('nama_tipe'),
-            'fasilitas'      => $this->request->getPost('fasilitas'),
-            'harga_tambahan' => $this->request->getPost('harga_tambahan'),
+            'nama_tipe' => $this->request->getPost('nama_tipe'),
+            'fasilitas' => $this->request->getPost('fasilitas'),
         ]);
+
+        // LOG
+        logActivity(
+            'INSERT TIPE',
+            'Menambahkan tipe kamar ' . $this->request->getPost('nama_tipe')
+        );
 
         return redirect()->to('/admin/tipe')->with('success', 'Tipe berhasil ditambahkan');
     }
 
-    // ✏️ Form edit
     public function edit($id)
     {
         $data['tipe'] = $this->tipeModel->find($id);
+
+        if (!$data['tipe']) {
+            return redirect()->to('/admin/tipe')->with('error', 'Data tidak ditemukan');
+        }
+
         return view('admin/tipe/edit', $data);
     }
 
-    // 🔄 Update
+    // UPDATE
     public function update($id)
     {
         $this->tipeModel->update($id, [
-            'nama_tipe'      => $this->request->getPost('nama_tipe'),
-            'fasilitas'      => $this->request->getPost('fasilitas'),
-            'harga_tambahan' => $this->request->getPost('harga_tambahan'),
+            'nama_tipe' => $this->request->getPost('nama_tipe'),
+            'fasilitas' => $this->request->getPost('fasilitas'),
         ]);
+
+        // LOG
+        logActivity(
+            'UPDATE TIPE',
+            'Mengupdate tipe kamar ' . $this->request->getPost('nama_tipe')
+        );
 
         return redirect()->to('/admin/tipe')->with('success', 'Tipe berhasil diupdate');
     }
 
-    // ❌ Hapus
+    // DELETE
     public function delete($id)
     {
+        $tipe = $this->tipeModel->find($id);
+
         $this->tipeModel->delete($id);
+
+        // LOG
+        logActivity(
+            'DELETE TIPE',
+            'Menghapus tipe kamar ' . $tipe['nama_tipe']
+        );
+
         return redirect()->to('/admin/tipe')->with('success', 'Tipe berhasil dihapus');
     }
 }
