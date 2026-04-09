@@ -20,6 +20,7 @@ class DetailTransaksiModel extends Model
         'tanggal_masuk',
         'jatuh_tempo',
         'subtotal',
-        'status_sewa'
+        'status_sewa',
+        'bayar'      
     ];
 }

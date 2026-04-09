@@ -1,109 +1,6 @@
 <?= $this->extend('layout/sidebarowner') ?>
 <?= $this->section('content') ?>
-
-<style>
-.page-wrapper {
-    padding: 32px 36px;
-    min-height: 100vh;
-    background-color: #f0f4f8;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-.page-header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1a1a2e;
-    margin: 0;
-}
-
-/* SEARCH */
-.search-container {
-    background-color: #3b82c4;
-    border-radius: 12px;
-    padding: 20px 24px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-.search-container input[type="text"] {
-    flex: 1;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    color: #666;
-    outline: none;
-    background: #ffffff;
-}
-
-.btn-search {
-    background-color: #ffffff;
-    color: #1a1a2e;
-    padding: 12px 28px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.btn-reset {
-    background-color: #e05c6a;
-    color: #ffffff;
-    padding: 12px 22px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    text-decoration: none;
-}
-
-/* TABLE */
-.table-wrapper {
-    background-color: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
-
-.user-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.user-table thead tr {
-    background-color: #3b82c4;
-    color: #ffffff;
-}
-
-.user-table thead th {
-    padding: 14px 20px;
-    text-align: left;
-    font-size: 0.9rem;
-}
-
-.user-table tbody tr:nth-child(odd) {
-    background-color: #e8e8e8;
-}
-
-.user-table tbody tr:nth-child(even) {
-    background-color: #f5f5f5;
-}
-
-.user-table tbody td {
-    padding: 13px 20px;
-    font-size: 0.9rem;
-}
-</style>
+<link rel="stylesheet" href="<?= base_url('css/owner/lihattipe.css') ?>">
 
 <div class="page-wrapper">
 
@@ -126,17 +23,16 @@
                     <th>No</th>
                     <th>Nama Tipe</th>
                     <th>Fasilitas</th>
-                    <th>Harga Tambahan</th>
                 </tr>
             </thead>
             <tbody>
-                <?php $no = 1; foreach ($tipe as $p): ?>
-                <tr>
-                    <td><?= $no++ ?></td>
-                    <td><?= esc($p['nama_tipe']) ?></td>
-                    <td><?= esc($p['fasilitas']) ?></td>
-                    <td>Rp <?= number_format($p['harga_tambahan'], 0, ',', '.') ?></td>
-                </tr>
+                <?php $no = 1;
+                foreach ($tipe as $p): ?>
+                    <tr>
+                        <td><?= $no++ ?></td>
+                        <td><?= esc($p['nama_tipe']) ?></td>
+                        <td><?= esc($p['fasilitas']) ?></td>
+                   </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>

@@ -10,9 +10,13 @@ class PenghuniModel extends Model
 
     protected $allowedFields = [
         'id_detail',
+        'id_kamar',
         'nama_penghuni',
         'nik',
         'no_hp',
-        'alamat'
+        'alamat',
+        'status',
+        'tanggal_masuk',
+        'tanggal_keluar'
     ];
 }

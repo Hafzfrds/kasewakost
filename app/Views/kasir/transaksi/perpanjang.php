@@ -1,42 +1,61 @@
 <?= $this->extend('layout/sidebarkasir') ?>
 <?= $this->section('content') ?>
+<link rel="stylesheet" href="<?= base_url('css/kasir/transaksi/bayarlangsung.css') ?>">
+<h2 class="page-title">Perpanjang Sewa Kost</h2>
 
-<h1>Perpanjang Sewa Kost</h1>
 <?php if (session()->getFlashdata('error')) : ?>
-    <div style="background:red;color:white;padding:10px;margin-bottom:10px;">
+    <div class="alert-error">
         <?= session()->getFlashdata('error'); ?>
     </div>
 <?php endif; ?>
-<form action="/kasir/transaksi/perpanjang/simpan" method="post">
 
-<input type="hidden" name="id_detail" value="<?= $detail['id_detail'] ?>">
-<input type="hidden" id="harga" value="<?= $detail['harga_sewa'] ?>">
+<form action="/kasir/transaksi/perpanjang/simpan" method="post" class="form-card">
 
-<label>Nama Penyewa</label>
-<input type="text" value="<?= $detail['nama_penghuni'] ?>" readonly>
+    <input type="hidden" name="id_detail" value="<?= $detail['id_detail'] ?>">
+    <input type="hidden" id="harga" value="<?= $detail['harga_sewa'] ?>">
 
-<label>Kamar</label>
-<input type="text" value="<?= $detail['nama_kamar'] ?>" readonly>
+    <div class="form-group">
+        <label>Nama Penyewa</label>
+        <input type="text" value="<?= $detail['nama_penghuni'] ?>" readonly>
+    </div>
 
-<label>Harga Sewa / Bulan</label>
-<input type="text" value="<?= number_format($detail['harga_sewa']) ?>" readonly>
+    <div class="form-group">
+        <label>Kamar</label>
+        <input type="text" value="<?= $detail['nama_kamar'] ?>" readonly>
+    </div>
 
-<label>Perpanjang Berapa Bulan</label>
-<input type="number" name="lama_sewa" id="bulan" required>
+    <div class="form-group">
+        <label>Harga Sewa / Bulan</label>
+        <input type="text" value="<?= number_format($detail['harga_sewa']) ?>" readonly>
+    </div>
 
-<label>Diperpanjang Hingga</label>
-<input type="date" name="jatuh_tempo" id="tempo" readonly>
+    <div class="form-group">
+        <label>Perpanjang Berapa Bulan</label>
+        <input type="number" name="lama_sewa" id="bulan" required>
+    </div>
 
-<label>Total Sewa</label>
-<input type="text" name="total" id="total" readonly>
+    <div class="form-group">
+        <label>Diperpanjang Hingga</label>
+        <input type="date" name="jatuh_tempo" id="tempo" readonly>
+    </div>
 
-<label>Uang Bayar</label>
-<input type="number" name="bayar" id="bayar" required>
+    <div class="form-group">
+        <label>Total Sewa</label>
+        <input type="text" name="total" id="total" readonly>
+    </div>
 
-<label>Kembalian</label>
-<input type="text" id="kembalian" readonly>
+    <div class="form-group">
+        <label>Uang Bayar</label>
+        <input type="number" name="bayar" id="bayar" required>
+    </div>
 
-<button type="submit">Bayar</button>
+    <div class="form-footer">
+        <button type="submit" class="btn-bayar">Bayar</button>
+        <span class="kembalian-label">
+            Kembalian: <span id="kembalian">0</span>
+        </span>
+    </div>
+
 </form>
 
 <script>
@@ -47,7 +66,6 @@ document.getElementById('bulan').addEventListener('input', function(){
     let total = bulan * harga;
     document.getElementById('total').value = total;
 
-    // hitung jatuh tempo dari tanggal jatuh tempo sebelumnya
     let oldDate = new Date("<?= $detail['jatuh_tempo'] ?>");
     oldDate.setMonth(oldDate.getMonth() + parseInt(bulan));
     document.getElementById('tempo').value = oldDate.toISOString().split('T')[0];
@@ -58,7 +76,7 @@ document.getElementById('bayar').addEventListener('input', function(){
     let total = parseFloat(document.getElementById('total').value);
 
     let kembali = bayar - total;
-    document.getElementById('kembalian').value = kembali;
+    document.getElementById('kembalian').textContent = kembali;
 });
 </script>
 

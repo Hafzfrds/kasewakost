@@ -46,6 +46,13 @@
             <td>Tanggal</td>
             <td>: <?= $transaksi['tanggal_transaksi']; ?></td>
         </tr>
+
+           <?php if ($transaksi['jenis_transaksi'] == 'booking'): ?>
+<tr>
+    <td>Jatuh Tempo Booking</td>
+    <td>: <?= $transaksi['jatuh_tempo_booking']; ?></td>
+</tr>
+<?php endif; ?>
         <tr>
             <td>Penanggung Jawab</td>
             <td>: <?= $transaksi['nama_penanggung_jawab']; ?></td>
@@ -100,6 +107,8 @@
             </td>
         </tr>
         <?php endif; ?>
+
+     
 
     </table>
 

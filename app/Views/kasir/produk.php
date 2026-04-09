@@ -243,12 +243,7 @@
 
 <div class="page-wrapper">
 
-    <!-- HEADER -->
-    <div class="page-header">
-        <h1>Produk</h1>
-       <a href="/kasir/transaksi/keranjang" class="btn btn-warning">🛒 Lihat Keranjang</a>
-    </div>
-
+    
     <!-- GRID -->
     <div class="card-grid">
         <?php foreach($kamar as $k): ?>
@@ -296,7 +291,7 @@
                         <button class="btn-terisi" disabled>Terisi</button>
                     <?php endif; ?>
 
-                  <a href="/kasir/transaksi/tambahKeranjang/<?= $k['id_kamar'] ?>" class="btn-tambah">+</a>
+                  
                 </div>
             </div>
 

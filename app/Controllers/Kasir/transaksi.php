@@ -63,16 +63,17 @@ $kembalian = $bayar - $subtotal;
     $id_transaksi = $transaksiModel->insertID();
 
     // ================= DETAIL TRANSAKSI =================
-    $detailModel->insert([
-        'id_transaksi' => $id_transaksi,
-        'id_kamar' => $id_kamar,
-        'harga' => $harga,
-        'lama_sewa' => $lama_sewa,
-        'tanggal_masuk' => $tanggal_masuk,
-        'jatuh_tempo' => $jatuh_tempo,
-        'subtotal' => $subtotal,
-        'status_sewa' => 'aktif'
-    ]);
+$detailModel->insert([
+    'id_transaksi' => $id_transaksi,
+    'id_kamar' => $id_kamar,
+    'harga' => $harga,
+    'lama_sewa' => $lama_sewa,
+    'tanggal_masuk' => $tanggal_masuk,
+    'jatuh_tempo' => $jatuh_tempo,
+    'subtotal' => $subtotal,
+    'bayar' => $subtotal, // 🔥 INI WAJIB DITAMBAHKAN
+    'status_sewa' => 'aktif'
+]);
 
     $id_detail = $detailModel->insertID();
 
@@ -83,6 +84,7 @@ $kembalian = $bayar - $subtotal;
         'nik'           => $this->request->getPost('nik1'),
         'no_hp'         => $this->request->getPost('hp1'),
         'alamat'        => $this->request->getPost('alamat1'),
+         'status'        => 'sedang menghuni' 
     ]);
 
     $id_penghuni = $penghuniModel->insertID();
@@ -101,6 +103,7 @@ $kembalian = $bayar - $subtotal;
             'nik'           => $this->request->getPost('nik2'),
             'no_hp'         => $this->request->getPost('hp2'),
             'alamat'        => $this->request->getPost('alamat2'),
+            'status'        => 'menunggu pembayaran'
         ]);
     }
 
@@ -130,7 +133,7 @@ $kembalian = $bayar - $subtotal;
     // ===============================
     // SIMPAN BOOKING (DP)
     // ===============================
-    public function simpanBooking()
+   public function simpanBooking()
 {
     $transaksiModel = new TransaksiModel();
     $detailModel    = new DetailTransaksiModel();
@@ -143,8 +146,17 @@ $kembalian = $bayar - $subtotal;
     $tanggal_masuk = $this->request->getPost('tanggal_masuk');
     $jatuh_tempo   = $this->request->getPost('jatuh_tempo');
 
+    // 🔥 TAMBAHAN BARU
+    $tanggal_booking      = $this->request->getPost('tanggal_booking');
+    $jatuh_tempo_booking  = $this->request->getPost('jatuh_tempo_booking');
+
     $subtotal = $harga * $lama_sewa;
     $dp       = $this->request->getPost('dp');
+
+    // ================= VALIDASI DP =================
+    if ($dp <= 0) {
+        return redirect()->back()->withInput()->with('error', 'DP harus diisi');
+    }
 
     // ================= SIMPAN TRANSAKSI =================
     $transaksiModel->insert([
@@ -152,6 +164,11 @@ $kembalian = $bayar - $subtotal;
         'nama_penanggung_jawab' => $this->request->getPost('penanggung_jawab'),
         'no_hp' => $this->request->getPost('no_hp'),
         'tanggal_transaksi' => date('Y-m-d'),
+
+        // 🔥 DATA BOOKING BARU
+        'tanggal_booking' => $tanggal_booking,
+        'jatuh_tempo_booking' => $jatuh_tempo_booking,
+
         'total' => $subtotal,
         'bayar' => $dp,
         'kembalian' => 0,
@@ -170,7 +187,8 @@ $kembalian = $bayar - $subtotal;
         'tanggal_masuk' => $tanggal_masuk,
         'jatuh_tempo' => $jatuh_tempo,
         'subtotal' => $subtotal,
-        'status_sewa' => 'booking'
+        'status_sewa' => 'booking',
+        'bayar' => $dp
     ]);
 
     $id_detail = $detailModel->insertID();
@@ -182,17 +200,18 @@ $kembalian = $bayar - $subtotal;
         'nik'           => $this->request->getPost('nik1'),
         'no_hp'         => $this->request->getPost('hp1'),
         'alamat'        => $this->request->getPost('alamat1'),
+        'status'        => 'menunggu pembayaran'
     ]);
 
     $id_penghuni = $penghuniModel->insertID();
 
-    // UPDATE detail_transaksi biar tidak NULL
+    // UPDATE detail_transaksi
     $detailModel->update($id_detail, [
         'id_penghuni'   => $id_penghuni,
         'nama_penghuni' => $this->request->getPost('penghuni1')
     ]);
 
-    // ================= SIMPAN PENGHUNI 2 (OPSIONAL) =================
+    // ================= PENGHUNI 2 =================
     if ($this->request->getPost('penghuni2')) {
         $penghuniModel->insert([
             'id_detail'     => $id_detail,
@@ -200,6 +219,7 @@ $kembalian = $bayar - $subtotal;
             'nik'           => $this->request->getPost('nik2'),
             'no_hp'         => $this->request->getPost('hp2'),
             'alamat'        => $this->request->getPost('alamat2'),
+            'status'        => 'menunggu pembayaran'
         ]);
     }
 
@@ -209,11 +229,11 @@ $kembalian = $bayar - $subtotal;
     ]);
 
     $this->logAktivitas(
-    'Booking Kamar',
-    'Booking kamar ID ' . $id_kamar . ' DP ' . $dp
-);
+        'Booking Kamar',
+        'Booking kamar ID ' . $id_kamar . ' DP ' . $dp
+    );
 
-   return redirect()->to('/kasir/transaksi/cetakStruk/' . $id_transaksi);
+    return redirect()->to('/kasir/transaksi/cetakStruk/' . $id_transaksi);
 }
 
     // ===============================
@@ -235,7 +255,7 @@ $kembalian = $bayar - $subtotal;
             return redirect()->to('/kasir/penghuni')->with('error', 'Data tidak ditemukan');
         }
 
-        $detail['sisa_bayar'] = $detail['total'] - $detail['bayar'];
+       $detail['sisa_bayar'] = $detail['subtotal'] - $detail['bayar'];
         $data['detail'] = $detail;
 
         return view('kasir/transaksi/pelunasan', $data);
@@ -244,15 +264,17 @@ $kembalian = $bayar - $subtotal;
     // ===============================
     // SIMPAN PELUNASAN
     // ===============================
-   public function simpanPelunasan()
+  public function simpanPelunasan()
 {
     $transaksiModel = new TransaksiModel();
-    $detailModel = new DetailTransaksiModel();
-    $kamarModel = new KamarModel();
+    $detailModel    = new DetailTransaksiModel();
+    $kamarModel     = new KamarModel();
+    $penghuniModel  = new PenghuniModel(); // ✅ WAJIB
 
     $id_detail = $this->request->getPost('id_detail');
     $bayar     = $this->request->getPost('bayar');
 
+    // ================= AMBIL DATA =================
     $detail = $detailModel->find($id_detail);
     if (!$detail) {
         return redirect()->back()->with('error', 'Detail tidak ditemukan');
@@ -260,46 +282,56 @@ $kembalian = $bayar - $subtotal;
 
     $transaksi = $transaksiModel->find($detail['id_transaksi']);
 
-    $total       = $transaksi['total'];
-    $sudahBayar  = $transaksi['bayar'];
+    $total       = $detail['subtotal'];
+    $sudahBayar  = $detail['bayar']; // DP
 
-    // HITUNG TOTAL BAYAR
+    // ================= SIMPAN DATA UNTUK STRUK =================
+    session()->setFlashdata('bayar_lama', $sudahBayar);
+    session()->setFlashdata('bayar_sekarang', $bayar);
+
+    // ================= HITUNG TOTAL =================
     $totalBayar = $sudahBayar + $bayar;
+    $sisa       = $total - $totalBayar;
 
-    // HITUNG SISA
-    $sisa = $total - $totalBayar;
-
-    // VALIDASI UANG KURANG
+    // ================= VALIDASI =================
     if ($totalBayar < $total) {
         return redirect()->back()->with('error', 'Uang pelunasan masih kurang');
     }
 
-    // JIKA SUDAH LUNAS
-    $status = 'lunas';
     $kembalian = abs($sisa);
 
+    // ================= UPDATE KAMAR =================
     $kamarModel->update($detail['id_kamar'], [
         'status_kamar' => 'terisi'
     ]);
 
+    // ================= UPDATE DETAIL =================
     $detailModel->update($id_detail, [
-        'status_sewa' => 'aktif'
+        'status_sewa' => 'aktif',
+        'bayar'       => $totalBayar
     ]);
 
-    // UPDATE TRANSAKSI
+    // ================= UPDATE STATUS PENGHUNI =================
+    $penghuniModel->where('id_detail', $id_detail)->set([
+        'status' => 'sedang menghuni'
+    ])->update();
+
+    // ================= UPDATE TRANSAKSI =================
     $transaksiModel->update($detail['id_transaksi'], [
-        'bayar' => $totalBayar,
-        'kembalian' => $kembalian,
-        'status' => $status
+        'status'    => 'lunas',
+        'bayar'     => $totalBayar,
+        'kembalian' => $kembalian
     ]);
 
+    // ================= LOG =================
     $this->logAktivitas(
-    'Pelunasan',
-    'Pelunasan transaksi ID ' . $detail['id_transaksi']
-);
-    return redirect()->to('/kasir/penghuni')->with('success', 'Pelunasan berhasil');
-}
+        'Pelunasan',
+        'Pelunasan transaksi ID ' . $detail['id_transaksi']
+    );
 
+    // ================= REDIRECT =================
+    return redirect()->to('/kasir/transaksi/struk_pelunasan/' . $id_detail);
+}
     // ===============================
     // FORM PERPANJANG
     // ===============================
@@ -331,28 +363,38 @@ $kembalian = $bayar - $subtotal;
     $detailModel    = new DetailTransaksiModel();
 
     $id_detail_lama = $this->request->getPost('id_detail');
-    $lama           = $this->request->getPost('lama_sewa');
-    $bayar          = $this->request->getPost('bayar');
-    $total          = $this->request->getPost('total');
+    $lama           = (int) $this->request->getPost('lama_sewa');
+    $bayar          = (int) $this->request->getPost('bayar');
+    $total          = (int) $this->request->getPost('total');
 
-    // Ambil data detail lama
+    // =========================
+    // AMBIL DATA LAMA
+    // =========================
     $detailLama = $detailModel->find($id_detail_lama);
     if (!$detailLama) {
         return redirect()->back()->with('error', 'Data tidak ditemukan');
     }
 
-    // VALIDASI UANG KURANG
+    // =========================
+    // VALIDASI
+    // =========================
     if ($bayar < $total) {
         return redirect()->back()->with('error', 'Uang tidak cukup untuk perpanjangan');
     }
 
-    // Hitung kembalian
     $kembalian = $bayar - $total;
 
-    // Hitung jatuh tempo baru
-    $jatuhTempoBaru = date('Y-m-d', strtotime($detailLama['jatuh_tempo'] . " +$lama month"));
+    // =========================
+    // HITUNG JATUH TEMPO BARU
+    // =========================
+    $jatuhTempoBaru = date(
+        'Y-m-d',
+        strtotime($detailLama['jatuh_tempo'] . " +{$lama} month")
+    );
 
-    // INSERT TRANSAKSI BARU
+    // =========================
+    // 1. SIMPAN TRANSAKSI BARU
+    // =========================
     $transaksiModel->insert([
         'kode_transaksi'        => 'TRX' . date('YmdHis'),
         'nama_penanggung_jawab' => $detailLama['nama_penghuni'],
@@ -366,317 +408,43 @@ $kembalian = $bayar - $subtotal;
 
     $id_transaksi_baru = $transaksiModel->insertID();
 
-    // INSERT DETAIL TRANSAKSI BARU
+    // =========================
+    // 2. INSERT DETAIL BARU (INI KUNCI UTAMA 🔥)
+    // =========================
     $detailModel->insert([
-        'id_transaksi'  => $id_transaksi_baru,
-        'id_kamar'      => $detailLama['id_kamar'],
-        'id_penghuni'   => $detailLama['id_penghuni'],
-        'harga'         => $detailLama['harga'],
-        'lama_sewa'     => $lama,
-        'tanggal_masuk' => $detailLama['tanggal_masuk'],
-        'jatuh_tempo'   => $jatuhTempoBaru,
-        'subtotal'      => $total,
-        'status_sewa'   => 'aktif'
+        'id_transaksi'   => $id_transaksi_baru,
+        'id_kamar'       => $detailLama['id_kamar'],
+        'id_penghuni'    => $detailLama['id_penghuni'],
+        'nama_penghuni'  => $detailLama['nama_penghuni'],
+        'harga'          => $detailLama['harga'],
+        'lama_sewa'      => $lama,
+        'tanggal_masuk'  => $detailLama['tanggal_masuk'],
+        'jatuh_tempo'    => $jatuhTempoBaru,
+        'subtotal'       => $total,
+        'bayar'          => $bayar,
+        'status_sewa'    => 'aktif'
     ]);
 
-    // UPDATE DETAIL LAMA JADI SELESAI
+    // =========================
+    // 3. UPDATE DETAIL LAMA (OPSIONAL TAPI DISARANKAN)
+    // =========================
     $detailModel->update($id_detail_lama, [
         'status_sewa' => 'selesai'
     ]);
 
+    // =========================
+    // 4. LOG AKTIVITAS
+    // =========================
     $this->logAktivitas(
-    'Perpanjang Sewa',
-    'Perpanjang kamar ID ' . $detailLama['id_kamar'] . ' selama ' . $lama . ' bulan'
-);
-    return redirect()->to('/kasir/riwayat')->with('success', 'Perpanjangan berhasil dicatat');
+        'Perpanjang Sewa',
+        'Perpanjang kamar ID ' . $detailLama['id_kamar'] . ' selama ' . $lama . ' bulan'
+    );
+
+    // =========================
+    // 5. REDIRECT STRUK
+    // =========================
+    return redirect()->to(base_url('kasir/transaksi/struk_perpanjang/' . $id_transaksi_baru));
 }
-   public function tambahKeranjang($id_kamar)
-{
-    $session = session();
-    $kamarModel = new \App\Models\KamarModel();
-
-    $kamar = $kamarModel->find($id_kamar);
-
-    if (!$kamar) {
-        return redirect()->back()->with('error', 'Kamar tidak ditemukan');
-    }
-
-    $keranjang = $session->get('keranjang') ?? [];
-
-    // Gunakan id_kamar sebagai index
-    $keranjang[$id_kamar] = [
-        'id_kamar'   => $kamar['id_kamar'],
-        'nama_kamar' => $kamar['nama_kamar'],
-        'harga'      => $kamar['harga']
-    ];
-
-    $session->set('keranjang', $keranjang);
-
-    return redirect()->to('/kasir/transaksi/keranjang');
-}
-public function keranjang()
-{
-    $session = session();
-    $data['keranjang'] = $session->get('keranjang') ?? [];
-
-    return view('kasir/transaksi/keranjang', $data);
-}
-
-public function hapusKeranjang($id_kamar)
-{
-    $session = session();
-    $keranjang = $session->get('keranjang');
-
-    unset($keranjang[$id_kamar]);
-
-    $session->set('keranjang', $keranjang);
-
-    return redirect()->to('/kasir/transaksi/keranjang');
-}
-
-public function formBayarKeranjang()
-{
-    $session = session();
-    $data['keranjang'] = $session->get('keranjang') ?? [];
-
-    return view('kasir/transaksi/bayar_keranjang', $data);
-}
-
-public function simpanBayarKeranjang()
-{
-    $session = session();
-    $keranjang = $session->get('keranjang');
-
-    if (!$keranjang) {
-        return redirect()->back()->with('error', 'Keranjang kosong');
-    }
-
-    $transaksiModel = new TransaksiModel();
-    $detailModel    = new DetailTransaksiModel();
-    $penghuniModel  = new PenghuniModel();
-    $kamarModel     = new KamarModel();
-
-    $lama_sewa     = $this->request->getPost('lama_sewa');
-    $tanggal_masuk = $this->request->getPost('tanggal_masuk');
-    $jatuh_tempo   = $this->request->getPost('jatuh_tempo');
-
-    // ================= HITUNG TOTAL =================
-    $total = 0;
-    foreach ($keranjang as $k) {
-        $total += $k['harga'] * $lama_sewa;
-    }
-
-    $bayar = $this->request->getPost('bayar');
-
-    if ($bayar < $total) {
-        return redirect()->back()->withInput()->with('error', 'Uang tidak cukup untuk membayar semua kamar');
-    }
-
-    $kembalian = $bayar - $total;
-
-    // ================= SIMPAN TRANSAKSI =================
-    $transaksiModel->insert([
-        'kode_transaksi' => 'TRX' . date('YmdHis'),
-        'nama_penanggung_jawab' => $this->request->getPost('penanggung_jawab'),
-        'no_hp' => $this->request->getPost('no_hp'),
-        'tanggal_transaksi' => date('Y-m-d'),
-        'total' => $total,
-        'bayar' => $bayar,
-        'kembalian' => $kembalian,
-        'jenis_transaksi' => 'bayar_langsung',
-        'status' => 'lunas'
-    ]);
-
-    $id_transaksi = $transaksiModel->insertID();
-
-    // ================= LOOP SETIAP KAMAR =================
-    $no = 0;
-    foreach ($keranjang as $k) {
-        $no++;
-
-        $subtotal = $k['harga'] * $lama_sewa;
-
-        // INSERT DETAIL DULU
-        $detailModel->insert([
-            'id_transaksi' => $id_transaksi,
-            'id_kamar' => $k['id_kamar'],
-            'harga' => $k['harga'],
-            'lama_sewa' => $lama_sewa,
-            'tanggal_masuk' => $tanggal_masuk,
-            'jatuh_tempo' => $jatuh_tempo,
-            'subtotal' => $subtotal,
-            'status_sewa' => 'aktif'
-        ]);
-
-        $id_detail = $detailModel->insertID();
-
-        // ================= PENGHUNI 1 =================
-        $penghuniModel->insert([
-            'id_detail'     => $id_detail,
-            'nama_penghuni' => $this->request->getPost('penghuni1_' . $no),
-            'nik'           => $this->request->getPost('nik1_' . $no),
-            'no_hp'         => $this->request->getPost('hp1_' . $no),
-            'alamat'        => $this->request->getPost('alamat1_' . $no),
-        ]);
-
-        $id_penghuni = $penghuniModel->insertID();
-
-        // UPDATE DETAIL BIAR ADA PENGHUNI UTAMA
-        $detailModel->update($id_detail, [
-            'id_penghuni'   => $id_penghuni,
-            'nama_penghuni' => $this->request->getPost('penghuni1_' . $no)
-        ]);
-
-        // ================= PENGHUNI 2 (OPSIONAL) =================
-        if ($this->request->getPost('penghuni2_' . $no)) {
-            $penghuniModel->insert([
-                'id_detail'     => $id_detail,
-                'nama_penghuni' => $this->request->getPost('penghuni2_' . $no),
-                'nik'           => $this->request->getPost('nik2_' . $no),
-                'no_hp'         => $this->request->getPost('hp2_' . $no),
-                'alamat'        => $this->request->getPost('alamat2_' . $no),
-            ]);
-        }
-
-        // UPDATE STATUS KAMAR
-        $kamarModel->update($k['id_kamar'], [
-            'status_kamar' => 'terisi'
-        ]);
-    }
-
-    // HAPUS KERANJANG
-    $session->remove('keranjang');
-
-    $this->logAktivitas(
-    'Bayar Banyak Kamar',
-    'Bayar beberapa kamar total ' . $total
-);
-    return redirect()->to('/kasir/transaksi/cetakStruk/' . $id_transaksi);
-}
-public function formBookingKeranjang()
-{
-    $session = session();
-    $data['keranjang'] = $session->get('keranjang') ?? [];
-
-    return view('kasir/transaksi/booking_keranjang', $data);
-}
-
-public function simpanBookingKeranjang()
-{
-    $session = session();
-    $keranjang = $session->get('keranjang');
-
-    if (!$keranjang) {
-        return redirect()->back()->with('error', 'Keranjang kosong');
-    }
-
-    $transaksiModel = new TransaksiModel();
-    $detailModel    = new DetailTransaksiModel();
-    $penghuniModel  = new PenghuniModel();
-    $kamarModel     = new KamarModel();
-
-    $lama_sewa     = $this->request->getPost('lama_sewa');
-    $tanggal_masuk = $this->request->getPost('tanggal_masuk');
-    $jatuh_tempo   = $this->request->getPost('jatuh_tempo');
-
-    // ================= HITUNG TOTAL =================
-    $total = 0;
-    foreach ($keranjang as $k) {
-        $total += $k['harga'] * $lama_sewa;
-    }
-
-    $dp = $this->request->getPost('dp');
-
-    // ================= SIMPAN TRANSAKSI =================
-    $transaksiModel->insert([
-        'kode_transaksi' => 'TRX' . date('YmdHis'),
-        'nama_penanggung_jawab' => $this->request->getPost('penanggung_jawab'),
-        'no_hp' => $this->request->getPost('no_hp'),
-        'tanggal_transaksi' => date('Y-m-d'),
-        'total' => $total,
-        'bayar' => $dp,
-        'kembalian' => 0,
-        'jenis_transaksi' => 'booking',
-        'status' => 'booking'
-    ]);
-
-    $id_transaksi = $transaksiModel->insertID();
-
-    // ================= LOOP SETIAP KAMAR =================
-    $no = 0;
-    foreach ($keranjang as $k) {
-        $no++;
-
-        $subtotal = $k['harga'] * $lama_sewa;
-
-        // INSERT DETAIL
-        $detailModel->insert([
-            'id_transaksi' => $id_transaksi,
-            'id_kamar' => $k['id_kamar'],
-            'harga' => $k['harga'],
-            'lama_sewa' => $lama_sewa,
-            'tanggal_masuk' => $tanggal_masuk,
-            'jatuh_tempo' => $jatuh_tempo,
-            'subtotal' => $subtotal,
-            'status_sewa' => 'booking'
-        ]);
-
-        $id_detail = $detailModel->insertID();
-
-        // ================= PENGHUNI 1 =================
-        $penghuniModel->insert([
-            'id_detail'     => $id_detail,
-            'nama_penghuni' => $this->request->getPost('penghuni1_' . $no),
-            'nik'           => $this->request->getPost('nik1_' . $no),
-            'no_hp'         => $this->request->getPost('hp1_' . $no),
-            'alamat'        => $this->request->getPost('alamat1_' . $no),
-        ]);
-
-        $id_penghuni = $penghuniModel->insertID();
-
-        // UPDATE DETAIL DENGAN PENGHUNI UTAMA
-        $detailModel->update($id_detail, [
-            'id_penghuni'   => $id_penghuni,
-            'nama_penghuni' => $this->request->getPost('penghuni1_' . $no)
-        ]);
-
-        // ================= PENGHUNI 2 (OPSIONAL) =================
-        if ($this->request->getPost('penghuni2_' . $no)) {
-            $penghuniModel->insert([
-                'id_detail'     => $id_detail,
-                'nama_penghuni' => $this->request->getPost('penghuni2_' . $no),
-                'nik'           => $this->request->getPost('nik2_' . $no),
-                'no_hp'         => $this->request->getPost('hp2_' . $no),
-                'alamat'        => $this->request->getPost('alamat2_' . $no),
-            ]);
-        }
-
-        // UPDATE STATUS KAMAR
-        $kamarModel->update($k['id_kamar'], [
-            'status_kamar' => 'booking'
-        ]);
-    }
-
-    // HAPUS KERANJANG
-    $session->remove('keranjang');
-
-    $this->logAktivitas(
-    'Booking Banyak Kamar',
-    'Booking beberapa kamar total ' . $total
-);
-  return redirect()->to('/kasir/transaksi/cetakStruk/' . $id_transaksi);
-}
-
-public function resetKeranjang()
-{
-    session()->remove('keranjang');
-    $this->logAktivitas(
-    'Reset Keranjang',
-    'Menghapus semua keranjang'
-);
-    return redirect()->back();
-}
-
 public function cetakStruk($id_transaksi)
 {
     $this->logAktivitas(
@@ -701,6 +469,78 @@ public function cetakStruk($id_transaksi)
     $dompdf->setPaper('A5', 'portrait');
     $dompdf->render();
     $dompdf->stream('struk.pdf', ['Attachment' => true]);
+}
+
+public function struk_perpanjang($id_transaksi)
+{
+    $db = \Config\Database::connect();
+
+    $transaksi = $db->table('transaksi')
+        ->where('id_transaksi', $id_transaksi)
+        ->get()
+        ->getRowArray();
+
+    $detail = $db->table('detail_transaksi')
+        ->join('kamar', 'kamar.id_kamar = detail_transaksi.id_kamar')
+        ->where('detail_transaksi.id_transaksi', $id_transaksi)
+        ->get()
+        ->getResultArray();
+
+    $data = [
+        'transaksi' => $transaksi,
+        'detail' => $detail
+    ];
+
+    $html = view('kasir/transaksi/struk_perpanjang_pdf', $data);
+
+    $dompdf = new \Dompdf\Dompdf();
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A5', 'portrait');
+    $dompdf->render();
+
+    // TRUE = download otomatis
+    $dompdf->stream('Struk_Perpanjang.pdf', ['Attachment' => true]);
+}
+
+public function struk_pelunasan($id_detail)
+{
+    $db = \Config\Database::connect();
+
+    $transaksi = $db->table('detail_transaksi')
+        ->join('transaksi', 'transaksi.id_transaksi = detail_transaksi.id_transaksi')
+        ->join('penghuni', 'penghuni.id_penghuni = detail_transaksi.id_penghuni')
+        ->join('kamar', 'kamar.id_kamar = detail_transaksi.id_kamar')
+        ->where('detail_transaksi.id_detail', $id_detail)
+        ->get()
+        ->getRowArray();
+
+    if (!$transaksi) {
+        return redirect()->back()->with('error', 'Data tidak ditemukan');
+    }
+
+    // 🔥 AMBIL DATA SEBELUM & SAAT PELUNASAN
+    $bayar_lama      = session()->getFlashdata('bayar_lama') ?? 0;
+    $bayar_sekarang  = session()->getFlashdata('bayar_sekarang') ?? 0;
+
+    $total     = $transaksi['total'];
+    $kembalian = $transaksi['kembalian'];
+
+    // 🔥 INI YANG KAMU MAU
+    $sisaBayar = $total - $bayar_lama;
+
+    $transaksi['sisa_bayar'] = $sisaBayar;
+    $transaksi['uang_bayar'] = $bayar_sekarang;
+    $transaksi['kembalian']  = $kembalian;
+
+    $data['transaksi'] = $transaksi;
+
+    $html = view('kasir/transaksi/struk_pelunasan_pdf', $data);
+
+    $dompdf = new \Dompdf\Dompdf();
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A5', 'portrait');
+    $dompdf->render();
+    $dompdf->stream('Struk_Pelunasan.pdf', ['Attachment' => true]);
 }
 private function logAktivitas($aktivitas, $keterangan)
 {

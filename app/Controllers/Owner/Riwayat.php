@@ -3,6 +3,7 @@
 namespace App\Controllers\Owner;
 
 use App\Controllers\BaseController;
+use Dompdf\Dompdf;
 
 class Riwayat extends BaseController
 {
@@ -10,29 +11,135 @@ class Riwayat extends BaseController
     {
         $db = \Config\Database::connect();
 
-        $data['riwayat'] = $db->table('transaksi')
-            ->select('
-                transaksi.id_transaksi,
-                transaksi.kode_transaksi,
-                transaksi.nama_penanggung_jawab,
-                transaksi.total,
-                transaksi.bayar,
-                transaksi.kembalian,
-                transaksi.jenis_transaksi,
-                transaksi.status,
-                transaksi.tanggal_transaksi,
-                dt.tanggal_masuk,
-                dt.jatuh_tempo,
-                kamar.nama_kamar,
-                penghuni.nama_penghuni
-            ')
-            ->join('detail_transaksi dt', 'dt.id_transaksi = transaksi.id_transaksi', 'left')
-            ->join('kamar', 'kamar.id_kamar = dt.id_kamar', 'left')
-            ->join('penghuni', 'penghuni.id_penghuni = dt.id_penghuni', 'left')
-            ->orderBy('transaksi.id_transaksi', 'DESC')
-            ->get()
-            ->getResultArray();
+        // Ambil input GET
+        $tanggal_awal  = $this->request->getGet('tanggal_awal');
+        $tanggal_akhir = $this->request->getGet('tanggal_akhir');
+        $keyword       = $this->request->getGet('keyword');
+
+        $builder = $db->table('transaksi');
+
+        $builder->select('
+            transaksi.id_transaksi,
+            transaksi.kode_transaksi,
+            transaksi.nama_penanggung_jawab,
+            transaksi.total,
+            transaksi.bayar,
+            transaksi.kembalian,
+            transaksi.jenis_transaksi,
+            transaksi.status,
+            transaksi.tanggal_transaksi,
+            dt.tanggal_masuk,
+            dt.jatuh_tempo,
+            kamar.nama_kamar,
+            penghuni.nama_penghuni
+        ');
+
+        // Ambil detail_transaksi terbaru per transaksi (penting untuk perpanjang)
+       $builder->join('(SELECT id_transaksi, 
+                        MAX(tanggal_masuk) as tanggal_masuk,
+                        MAX(jatuh_tempo) as jatuh_tempo,
+                        MAX(id_kamar) as id_kamar,
+                        MAX(id_penghuni) as id_penghuni
+                 FROM detail_transaksi 
+                 GROUP BY id_transaksi) dt', 
+                 'dt.id_transaksi = transaksi.id_transaksi', 'left');
+        $builder->join('kamar', 'kamar.id_kamar = dt.id_kamar', 'left');
+        $builder->join('penghuni', 'penghuni.id_penghuni = dt.id_penghuni', 'left');
+
+        // ================= FILTER TANGGAL =================
+        if (!empty($tanggal_awal)) {
+            $builder->where('DATE(transaksi.tanggal_transaksi) >=', $tanggal_awal);
+        }
+
+        if (!empty($tanggal_akhir)) {
+            $builder->where('DATE(transaksi.tanggal_transaksi) <=', $tanggal_akhir);
+        }
+
+        // ================= SEARCH =================
+        if (!empty($keyword)) {
+            $builder->groupStart()
+                ->like('transaksi.kode_transaksi', $keyword)
+                ->orLike('penghuni.nama_penghuni', $keyword)
+                ->orLike('transaksi.nama_penanggung_jawab', $keyword)
+                ->orLike('kamar.nama_kamar', $keyword)
+                ->groupEnd();
+        }
+
+        $builder->orderBy('transaksi.id_transaksi', 'DESC');
+
+        $data['riwayat'] = $builder->get()->getResultArray();
 
         return view('owner/riwayat/index', $data);
+    }
+
+    public function exportPdf()
+    {
+        $db = \Config\Database::connect();
+
+        $tanggal_awal  = $this->request->getGet('tanggal_awal');
+        $tanggal_akhir = $this->request->getGet('tanggal_akhir');
+        $keyword       = $this->request->getGet('keyword');
+
+        $builder = $db->table('transaksi');
+
+        $builder->select('
+            transaksi.kode_transaksi,
+            transaksi.nama_penanggung_jawab,
+            transaksi.total,
+            transaksi.bayar,
+            transaksi.jenis_transaksi,
+            transaksi.status,
+            transaksi.tanggal_transaksi,
+            dt.tanggal_masuk,
+            dt.jatuh_tempo,
+            kamar.nama_kamar,
+            penghuni.nama_penghuni
+        ');
+
+        // Ambil detail_transaksi terbaru
+       $builder->join('(SELECT id_transaksi, 
+                        MAX(tanggal_masuk) as tanggal_masuk,
+                        MAX(jatuh_tempo) as jatuh_tempo,
+                        MAX(id_kamar) as id_kamar,
+                        MAX(id_penghuni) as id_penghuni
+                 FROM detail_transaksi 
+                 GROUP BY id_transaksi) dt', 
+                 'dt.id_transaksi = transaksi.id_transaksi', 'left');
+
+        $builder->join('kamar', 'kamar.id_kamar = dt.id_kamar', 'left');
+        $builder->join('penghuni', 'penghuni.id_penghuni = dt.id_penghuni', 'left');
+
+        // FILTER
+        if ($tanggal_awal) {
+            $builder->where('DATE(transaksi.tanggal_transaksi) >=', $tanggal_awal);
+        }
+
+        if ($tanggal_akhir) {
+            $builder->where('DATE(transaksi.tanggal_transaksi) <=', $tanggal_akhir);
+        }
+
+        if ($keyword) {
+            $builder->groupStart()
+                ->like('transaksi.kode_transaksi', $keyword)
+                ->orLike('penghuni.nama_penghuni', $keyword)
+                ->orLike('transaksi.nama_penanggung_jawab', $keyword)
+                ->orLike('kamar.nama_kamar', $keyword)
+                ->groupEnd();
+        }
+
+        $builder->orderBy('transaksi.id_transaksi', 'DESC');
+
+        $data['riwayat'] = $builder->get()->getResultArray();
+
+        // ================= PDF =================
+        $dompdf = new Dompdf();
+
+        $html = view('owner/riwayat/pdf', $data);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        $dompdf->stream('riwayat-transaksi.pdf', ['Attachment' => false]);
     }
 }

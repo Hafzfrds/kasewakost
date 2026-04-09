@@ -1,40 +1,62 @@
-<h2>Pelunasan</h2>
+<?= $this->extend('layout/sidebarkasir') ?>
+<?= $this->section('content') ?>
+
+<link rel="stylesheet" href="<?= base_url('css/kasir/transaksi/bayarlangsung.css') ?>">
+
+<h2 class="page-title">Pelunasan</h2>
+
 <?php if (session()->getFlashdata('error')) : ?>
-    <div style="background:red;color:white;padding:10px;margin-bottom:10px;">
+    <div class="alert-error">
         <?= session()->getFlashdata('error'); ?>
     </div>
 <?php endif; ?>
-<form action="/kasir/transaksi/pelunasan/simpan" method="post">
 
-<input type="hidden" name="id_detail" value="<?= $detail['id_detail'] ?>">
-<input type="hidden" id="sisa" value="<?= $detail['sisa_bayar'] ?>">
+<form action="/kasir/transaksi/pelunasan/simpan" method="post" class="form-card">
 
-<label>Nama Penanggung Jawab</label>
-<input type="text" value="<?= $detail['nama_penanggung_jawab'] ?>" readonly>
+    <input type="hidden" name="id_detail" value="<?= $detail['id_detail'] ?>">
+    <input type="hidden" id="sisa" value="<?= $detail['sisa_bayar'] ?>">
 
-<label>No HP</label>
-<input type="text" value="<?= $detail['no_hp'] ?>" readonly>
+    <div class="form-group">
+        <label>Nama Penanggung Jawab</label>
+        <input type="text" value="<?= $detail['nama_penanggung_jawab'] ?>" readonly>
+    </div>
 
-<label>Kamar</label>
-<input type="text" value="<?= $detail['nama_kamar'] ?>" readonly>
+    <div class="form-group">
+        <label>No HP</label>
+        <input type="text" value="<?= $detail['no_hp'] ?>" readonly>
+    </div>
 
-<label>Total</label>
-<input type="text" value="<?= number_format($detail['total']) ?>" readonly>
+    <div class="form-group">
+        <label>Kamar</label>
+        <input type="text" value="<?= $detail['nama_kamar'] ?>" readonly>
+    </div>
 
-<label>DP / Sudah Dibayar</label>
-<input type="text" value="<?= number_format($detail['bayar']) ?>" readonly>
+    <div class="form-group">
+        <label>Total</label>
+        <input type="text" value="<?= number_format($detail['total']) ?>" readonly>
+    </div>
 
-<label>Sisa Bayar</label>
-<input type="text" value="<?= number_format($detail['sisa_bayar']) ?>" readonly>
+    <div class="form-group">
+        <label>DP / Sudah Dibayar</label>
+        <input type="text" value="<?= number_format($detail['bayar']) ?>" readonly>
+    </div>
 
-<label>Uang Bayar</label>
-<input type="number" id="bayar" name="bayar" required>
+    <div class="form-group">
+        <label>Sisa Bayar</label>
+        <input type="text" value="<?= number_format($detail['sisa_bayar']) ?>" readonly>
+    </div>
 
-<label>Kembalian</label>
-<input type="text" id="kembalian" readonly>
+    <div class="form-group">
+        <label>Uang Bayar</label>
+        <input type="number" id="bayar" name="bayar" required>
+    </div>
 
-<br><br>
-<button type="submit">Simpan Pelunasan</button>
+    <div class="form-footer">
+        <button type="submit" class="btn-bayar">Simpan Pelunasan</button>
+        <span class="kembalian-label">
+            Kembalian: <span id="kembalian">0</span>
+        </span>
+    </div>
 
 </form>
 
@@ -46,9 +68,11 @@ document.getElementById('bayar').addEventListener('input', function(){
     let kembali = bayar - sisa;
 
     if(kembali < 0){
-        document.getElementById('kembalian').value = 0;
+        document.getElementById('kembalian').textContent = 0;
     } else {
-        document.getElementById('kembalian').value = kembali;
+        document.getElementById('kembalian').textContent = kembali;
     }
 });
 </script>
+
+<?= $this->endSection() ?>

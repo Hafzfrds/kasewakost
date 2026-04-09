@@ -1,26 +1,36 @@
 <?= $this->extend('layout/sidebarowner') ?>
 <?= $this->section('content') ?>
 
+<link rel="stylesheet" href="<?= base_url('css/owner/log.css') ?>">
+
 <div class="page-wrapper">
 
-    <h2 style="margin-bottom:20px;">📋 Log Activity</h2>
+    <!-- Header -->
+    <div class="page-header">
+        <h1>Log Activity</h1>
+    </div>
 
-    <!-- FILTER -->
-    <form method="get" style="margin-bottom:20px;">
-        <input type="text" name="keyword" placeholder="Cari user / aktivitas..." value="<?= $keyword ?? '' ?>" style="padding:8px;">
-        <button type="submit" style="padding:8px 12px;">Cari</button>
+    <!-- Filter / Search -->
+    <form method="get">
+        <div class="search-container">
+            <input type="text" name="keyword" placeholder="Cari user / aktivitas..." value="<?= $keyword ?? '' ?>">
+            <button type="submit" class="btn-search">Cari</button>
+            <?php if (!empty($keyword)): ?>
+                <a href="<?= base_url('log-activity') ?>" class="btn-reset">Reset</a>
+            <?php endif; ?>
+        </div>
     </form>
 
-    <!-- TABLE -->
-    <div style="overflow-x:auto;">
-        <table border="1" cellpadding="10" cellspacing="0" width="100%">
-            <thead style="background:#2c3e50;color:white;">
+    <!-- Tabel -->
+    <div class="table-wrapper">
+        <table class="user-table">
+            <thead>
                 <tr>
                     <th>No</th>
                     <th>Tanggal</th>
                     <th>Username</th>
                     <th>Role</th>
-                    <th>Aktivitas</th>
+                    <th style="text-align:center;">Aktivitas</th>
                     <th>Keterangan</th>
                 </tr>
             </thead>
@@ -32,29 +42,25 @@
                             <td><?= date('d-m-Y H:i', strtotime($l['tanggal'])) ?></td>
                             <td><?= $l['username'] ?></td>
                             <td><?= ucfirst($l['role']) ?></td>
-                            <td>
-                                <?php
-                                    $warna = '#3498db';
-
-                                    if ($l['aktivitas'] == 'LOGIN') $warna = '#2ecc71';
-                                    if ($l['aktivitas'] == 'LOGOUT') $warna = '#e74c3c';
-                                    if ($l['aktivitas'] == 'DELETE') $warna = '#c0392b';
-                                ?>
-                                <span style="
-                                    padding:5px 10px;
-                                    border-radius:5px;
-                                    background:<?= $warna ?>;
-                                    color:white;
-                                ">
-                                    <?= $l['aktivitas'] ?>
-                                </span>
+                            <td style="text-align:center;">
+                          <?php
+    $badgeClass = 'badge-info';
+    if ($l['aktivitas'] == 'LOGIN')  $badgeClass = 'badge-login';
+    if ($l['aktivitas'] == 'LOGOUT') $badgeClass = 'badge-logout';
+    if ($l['aktivitas'] == 'DELETE') $badgeClass = 'badge-delete';
+    if ($l['aktivitas'] == 'UPDATE') $badgeClass = 'badge-update';
+    if ($l['aktivitas'] == 'CREATE') $badgeClass = 'badge-info';
+?>
+<span class="badge-activity <?= $badgeClass ?>">
+    <?= $l['aktivitas'] ?>
+</span>
                             </td>
                             <td><?= $l['keterangan'] ?></td>
                         </tr>
                     <?php endforeach ?>
                 <?php else : ?>
                     <tr>
-                        <td colspan="6" align="center">Tidak ada data log</td>
+                        <td colspan="6" class="td-empty">Tidak ada data log</td>
                     </tr>
                 <?php endif ?>
             </tbody>

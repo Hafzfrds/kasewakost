@@ -59,6 +59,8 @@ $routes->group('kasir', function($routes) {
     // STRUK PDF
     $routes->get('transaksi/cetakStruk/(:num)', 'Kasir\Transaksi::cetakStruk/$1');
  $routes->get('transaksi/struk_pelunasan/(:num)', 'Kasir\Transaksi::struk_pelunasan/$1');
+ $routes->get('transaksi/struk_perpanjang/(:num)', 'Kasir\Transaksi::struk_perpanjang/$1');
+ $routes->get('kasir/transaksi/struk_pelunasan/(:num)', 'Kasir\Transaksi::struk_pelunasan/$1');
 
     // =====================
     // PRODUK
@@ -111,6 +113,7 @@ $routes->group('kasir', function($routes) {
     // DATA PENGHUNI
     // =====================
     $routes->get('penghuni', 'Kasir\Penghuni::index');
+    $routes->get('penghuni/berhentikan/(:num)', 'Kasir\Penghuni::berhentikan/$1');
 
 });
 
@@ -120,3 +123,4 @@ $routes->get('owner/kamar', 'Owner\Kamar::index');
 $routes->get('owner/tipe', 'Owner\Tipe::index');
 $routes->get('owner/riwayat', 'Owner\Riwayat::index');
 $routes->get('/owner/log', 'Owner\LogController::index');
+$routes->get('owner/riwayat/exportPdf', 'Owner\Riwayat::exportPdf');

@@ -19,6 +19,8 @@ class TransaksiModel extends Model
         'kembalian',
         'jenis_transaksi',
         'status',
+        'tanggal_booking',
+        'jatuh_tempo_booking',
         'created_at',
         'updated_at'
     ];

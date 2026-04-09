@@ -135,7 +135,7 @@ body {
 
     <li>
       <a href="/kasir/produk" class="<?= strpos(current_url(), 'produk') !== false ? 'active' : '' ?>">
-        <i class="fas fa-box"></i> Produk
+        <i class="fas fa-box"></i> Kamar
       </a>
     </li>
 

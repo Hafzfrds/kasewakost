@@ -1,69 +1,146 @@
-<h2>Booking Kamar</h2>
+<?= $this->extend('layout/sidebarkasir') ?>
+<?= $this->section('content') ?>
 
-<form action="<?= base_url('kasir/transaksi/simpanBooking') ?>" method="post">
+<link rel="stylesheet" href="<?= base_url('css/kasir/transaksi/bayarlangsung.css') ?>">
 
-<input type="hidden" name="id_kamar" value="<?= $kamar['id_kamar']; ?>">
-<input type="hidden" id="harga" name="harga" value="<?= $kamar['harga']; ?>">
+<h2 class="page-title">Booking Kamar</h2>
 
-<label>Nama Penanggung Jawab</label>
-<input type="text" name="penanggung_jawab" required>
+<form action="<?= base_url('kasir/transaksi/simpanBooking') ?>" method="post" class="form-card">
 
-<label>No HP Penanggung Jawab</label>
-<input type="text" name="no_hp" required>
+    <input type="hidden" name="id_kamar" value="<?= $kamar['id_kamar']; ?>">
+    <input type="hidden" id="harga" name="harga" value="<?= $kamar['harga']; ?>">
 
-<label>Kamar Dipilih</label>
-<input type="text" value="<?= $kamar['nama_kamar']; ?>" readonly>
+    <!-- ================= PENANGGUNG JAWAB ================= -->
+    <div class="form-group">
+        <label>Nama Penanggung Jawab</label>
+        <input type="text" name="penanggung_jawab" required>
+    </div>
 
-<!-- ================= PENGHUNI 1 ================= -->
-<h3>Penghuni 1</h3>
+    <div class="form-group">
+        <label>No HP Penanggung Jawab</label>
+        <input type="text" name="no_hp" required>
+    </div>
 
-<label>Nama Penghuni 1</label>
-<input type="text" name="penghuni1" required>
+    <div class="form-group">
+        <label>Kamar Dipilih</label>
+        <input type="text" value="<?= $kamar['nama_kamar']; ?>" readonly>
+    </div>
 
-<label>NIK Penghuni 1</label>
-<input type="text" name="nik1" required>
+    <!-- ================= PENGHUNI ================= -->
+    <div class="form-row">
 
-<label>No HP Penghuni 1</label>
-<input type="text" name="hp1" required>
+        <!-- Penghuni 1 -->
+        <div class="form-col">
+            <div class="form-section-title">
+                Penghuni 1
+                <span class="check-icon checked">✓</span>
+            </div>
 
-<label>Alamat Penghuni 1</label>
-<textarea name="alamat1" required></textarea>
+            <div class="form-group">
+                <label>Nama Penghuni 1</label>
+                <input type="text" name="penghuni1" required>
+            </div>
 
-<!-- ================= PENGHUNI 2 ================= -->
-<h3>Penghuni 2 (Opsional)</h3>
+            <div class="form-group">
+                <label>NIK Penghuni 1</label>
+                <input type="text" name="nik1" required>
+            </div>
 
-<label>Nama Penghuni 2</label>
-<input type="text" name="penghuni2">
+            <div class="form-group">
+                <label>No HP Penghuni 1</label>
+                <input type="text" name="hp1" required>
+            </div>
 
-<label>NIK Penghuni 2</label>
-<input type="text" name="nik2">
+            <div class="form-group">
+                <label>Alamat Penghuni 1</label>
+                <textarea name="alamat1" required></textarea>
+            </div>
+        </div>
 
-<label>No HP Penghuni 2</label>
-<input type="text" name="hp2">
+        <!-- Penghuni 2 -->
+        <div class="form-col">
+            <div class="form-section-title">
+                Penghuni 2 (Opsional)
+            </div>
 
-<label>Alamat Penghuni 2</label>
-<textarea name="alamat2"></textarea>
+            <div class="form-group">
+                <label>Nama Penghuni 2</label>
+                <input type="text" name="penghuni2">
+            </div>
 
-<!-- ================= SEWA ================= -->
-<label>Tanggal Masuk</label>
-<input type="date" id="tanggal_masuk" name="tanggal_masuk" required>
+            <div class="form-group">
+                <label>NIK Penghuni 2</label>
+                <input type="text" name="nik2">
+            </div>
 
-<label>Lama Sewa (bulan)</label>
-<input type="number" id="lama_sewa" name="lama_sewa" value="1">
+            <div class="form-group">
+                <label>No HP Penghuni 2</label>
+                <input type="text" name="hp2">
+            </div>
 
-<label>Tanggal Jatuh Tempo</label>
-<input type="date" id="jatuh_tempo" name="jatuh_tempo" readonly>
+            <div class="form-group">
+                <label>Alamat Penghuni 2</label>
+                <textarea name="alamat2"></textarea>
+            </div>
+        </div>
 
-<label>Total Harga</label>
-<input type="text" id="total" readonly>
+    </div>
 
-<label>Uang Booking (DP)</label>
-<input type="number" id="dp" name="dp" required>
+    <!-- ================= SEWA ================= -->
+    <div class="form-row">
 
-<label>Sisa Bayar</label>
-<input type="text" id="sisa" readonly>
+        <div class="form-col">
+            <div class="form-group">
+                <label>Tanggal Masuk</label>
+                <input type="date" id="tanggal_masuk" name="tanggal_masuk" required>
+            </div>
 
-<button type="submit">Simpan Booking</button>
+            <div class="form-group">
+                <label>Lama Sewa (bulan)</label>
+                <input type="number" id="lama_sewa" name="lama_sewa" value="1">
+            </div>
+        </div>
+
+        <div class="form-col">
+            <div class="form-group">
+                <label>Tanggal Jatuh Tempo</label>
+                <input type="date" id="jatuh_tempo" name="jatuh_tempo" readonly>
+            </div>
+
+            <div class="form-group">
+                <label>Total Harga</label>
+                <input type="text" id="total" readonly>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= PEMBAYARAN ================= -->
+    <div class="form-group">
+        <label>Uang Booking (DP)</label>
+        <input type="number" id="dp" name="dp" required>
+    </div>
+<div class="form-row">
+    <div class="form-col">
+        <div class="form-group">
+            <label>Tanggal Bayar Booking</label>
+            <input type="date" id="tanggal_booking" name="tanggal_booking" required>
+        </div>
+    </div>
+
+    <div class="form-col">
+        <div class="form-group">
+            <label>Jatuh Tempo Booking</label>
+            <input type="date" id="jatuh_tempo_booking" name="jatuh_tempo_booking" readonly>
+        </div>
+    </div>
+</div>
+    <div class="form-footer">
+        <button type="submit" class="btn-bayar">Simpan Booking</button>
+        <span class="kembalian-label">
+            Sisa Bayar: <span id="sisa">0</span>
+        </span>
+    </div>
 
 </form>
 
@@ -90,6 +167,23 @@ function hitung() {
 function hitungSisa(){
     let total = document.getElementById('total').value;
     let dp = document.getElementById('dp').value;
-    document.getElementById('sisa').value = total - dp;
+    document.getElementById('sisa').textContent = total - dp;
 }
+
+// AUTO SET TANGGAL BOOKING = HARI INI
+window.onload = function() {
+    let today = new Date().toISOString().split('T')[0];
+    document.getElementById('tanggal_booking').value = today;
+}
+
+// 🔥 JATUH TEMPO BOOKING = TANGGAL MASUK (HARI H)
+document.getElementById('tanggal_masuk').addEventListener('change', function() {
+    let tglMasuk = this.value;
+
+    if (tglMasuk) {
+        document.getElementById('jatuh_tempo_booking').value = tglMasuk;
+    }
+});
 </script>
+
+<?= $this->endSection() ?>
