@@ -1,163 +1,231 @@
 <?= $this->extend('layout/sidebarkasir') ?>
 <?= $this->section('content') ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="<?= base_url('css/kasir/penghuni/index.css') ?>">
 
-<h1>Data Penghuni</h1>
 
-<style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
+<div class="page-wrapper">
 
-    th {
-        background: #5b87b2;
-        color: white;
-        padding: 10px;
-    }
+    <!-- Header -->
+    <div class="page-header">
+        <h1>Data Penghuni</h1>
+    </div>
 
-    td {
-        padding: 10px;
-        border-bottom: 1px solid #ccc;
-        white-space: nowrap;
-        /* TAMBAHKAN INI: Biar tombol sejajar ke samping, tidak turun ke bawah lalu numpuk */
-    }
+    <!-- Search -->
+    <form method="get" action="/kasir/penghuni" class="search-container">
+        <input
+            type="text"
+            name="keyword"
+            value="<?= esc($keyword ?? '') ?>"
+            placeholder="Cari nama penghuni / kamar...">
+        <button type="submit" class="btn-search">Search</button>
+        <a href="/kasir/penghuni" class="btn-reset">Reset</a>
+    </form>
 
-    img {
-        width: 60px;
-        border-radius: 6px;
-    }
+    <!-- Table -->
+    <div class="section-card">
+        <div class="table-wrapper">
+            <table class="trx-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Kamar</th>
+                        <th>Uang Masuk</th>
+                        <th>Sisa Bayar</th>
+                        <th>Masuk</th>
+                        <th>Jatuh Tempo</th>
+                        <th>Status Bayar</th>
+                        <th>Status Penghuni</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
 
-    .btn-pelunasan,
-    .btn-perpanjang,
-    .btn-keluar {
-        display: inline-block;
-        margin-right: 5px;
-        /* Beri jarak */
-        margin-top: 5px;
-        /* Beri jarak atas bawah */
-    }
+                <tbody>
+                    <?php $no = 1;
+                    foreach ($penghuni as $p): ?>
 
-    .btn-perpanjang {
-        background: #3498db;
-        padding: 6px 12px;
-        border-radius: 6px;
-        text-decoration: none;
-        color: white;
-    }
+                        <!-- ROW UTAMA -->
+                        <tr onclick="toggleDetail(<?= $p['id_penghuni'] ?>)" style="cursor:pointer;">
+                            <td><?= $no++ ?></td>
+                            <td><?= $p['nama_penghuni'] ?></td>
+                            <td><?= $p['nama_kamar'] ?></td>
 
-    .btn-keluar {
-        background: #e74c3c;
-        padding: 6px 12px;
-        border-radius: 6px;
-        text-decoration: none;
-        color: white;
-    }
+                            <td>
+                                <?php
+                                $uangMasuk = $p['uang_masuk'];
+                                $sisa = $p['sisa_bayar'];
+                                if ($sisa <= 0) {
+                                    $sisa = 0;
+                                }
+                                ?>
+                                <?= number_format($uangMasuk) ?>
+                            </td>
 
-    .status-booking {
-        color: orange;
-        font-weight: bold;
-    }
+                            <td><?= number_format($sisa) ?></td>
+                            <td><?= $p['tanggal_masuk'] ?></td>
+                            <td><?= $p['jatuh_tempo'] ?></td>
 
-    .status-lunas {
-        color: green;
-        font-weight: bold;
-    }
+                            <!-- STATUS BAYAR -->
+                            <td>
+                                <?php if ($p['sisa_bayar'] > 0): ?>
+                                    <span class="badge-pending">Booking</span>
+                                <?php else: ?>
+                                    <span class="badge-lunas">Lunas</span>
+                                <?php endif; ?>
+                            </td>
 
-    .status-keluar {
-        color: red;
-        font-weight: bold;
-    }
-</style>
+                            <!-- STATUS PENGHUNI -->
+                            <td>
+                                <?php if ($p['status'] == 'menunggu pembayaran'): ?>
+                                    <span class="badge-pending">Menunggu Pembayaran</span>
 
-<table>
-    <tr>
-        <th>No</th>
-        <th>Nama</th>
-        <th>Kamar</th>
-        <th>Uang Masuk</th>
-        <th>Sisa Bayar</th>
-        <th>Masuk</th>
-        <th>Jatuh Tempo</th>
-        <th>Status Bayar</th>
-        <th>Status Penghuni</th>
-        <th>Aksi</th>
-    </tr>
+                                <?php elseif ($p['status'] == 'sedang menghuni'): ?>
+                                    <span class="badge-lunas">Sedang Menghuni</span>
 
-    <?php $no = 1;
-    foreach ($penghuni as $p): ?>
-        <tr>
-            <td><?= $no++ ?></td>
-            <td><?= $p['nama_penghuni'] ?></td>
-            <td><?= $p['nama_kamar'] ?></td>
+                                <?php else: ?>
+                                    <span class="badge-danger">Keluar</span>
+                                <?php endif; ?>
+                            </td>
 
-            <td>
-                <?php
-                $uangMasuk = $p['uang_masuk'];
-                $sisa = $p['sisa_bayar'];
+                            <!-- AKSI -->
+                            <td>
+                                <?php if ($p['status'] != 'keluar'): ?>
 
-                if ($sisa <= 0) {
-                    $sisa = 0;
-                }
-                ?>
-                <?= number_format($uangMasuk) ?>
-            </td>
+                                    <?php if ($p['sisa_bayar'] > 0): ?>
+                                        <a href="/kasir/transaksi/pelunasan/<?= $p['id_detail'] ?>" class="btn-action btn-warning">
+                                            Pelunasan
+                                        </a>
+                                    <?php endif; ?>
 
-            <td><?= number_format($sisa) ?></td>
-            <td><?= $p['tanggal_masuk'] ?></td>
-            <td><?= $p['jatuh_tempo'] ?></td>
+                                    <a href="/kasir/transaksi/perpanjang/<?= $p['id_detail'] ?>" class="btn-action btn-primary">
+                                        Perpanjang
+                                    </a>
 
-            <!-- STATUS BAYAR -->
-            <td>
-                <?php if ($p['sisa_bayar'] > 0): ?>
-                    <span class="status-booking">Booking</span>
-                <?php else: ?>
-                    <span class="status-lunas">Lunas</span>
-                <?php endif; ?>
-            </td>
+                                    <a href="javascript:void(0)"
+                                        class="btn-action btn-danger"
+                                        onclick="event.stopPropagation(); konfirmasiKeluar(<?= $p['id_penghuni'] ?>)">
+                                        Berhentikan
+                                    </a>
 
-            <!-- STATUS PENGHUNI -->
-            <td>
-                <?php if ($p['status'] == 'menunggu pembayaran'): ?>
-    <span class="status-booking">Menunggu Pembayaran</span>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                        </tr>
 
-<?php elseif ($p['status'] == 'sedang menghuni'): ?>
-    <span class="status-lunas">Sedang Menghuni</span>
+                        <!-- ROW DETAIL -->
+                        <tr id="detail-<?= $p['id_penghuni'] ?>" class="row-detail">
+                            <td colspan="10">
+                                <div class="detail-box">
+                                    <div class="detail-title">Detail Penghuni:</div>
 
-<?php else: ?>
-    <span class="status-keluar">Keluar</span>
+                                    <div class="detail-item">
+                                        <span>NIK</span>
+                                        <b><?= $p['nik'] ?? '-' ?></b>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <span>Alamat</span>
+                                        <b><?= $p['alamat'] ?? '-' ?></b>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <span>No HP</span>
+                                        <b><?= $p['no_hp'] ?? '-' ?></b>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                    <?php endforeach; ?>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+</div>
+<?php if(session()->getFlashdata('cetak_perpanjang') || session()->getFlashdata('cetak_pelunasan')): ?>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    let id = null;
+    let url = null;
+    let pesan = '';
+
+    // ================= PERPANJANG =================
+    <?php if(session()->getFlashdata('cetak_perpanjang')): ?>
+        id = "<?= session()->getFlashdata('cetak_perpanjang') ?>";
+        url = "<?= base_url('kasir/transaksi/struk_perpanjang/') ?>" + id;
+        pesan = 'Perpanjangan berhasil, struk diunduh...';
+    <?php endif; ?>
+
+    // ================= PELUNASAN =================
+    <?php if(session()->getFlashdata('cetak_pelunasan')): ?>
+        id = "<?= session()->getFlashdata('cetak_pelunasan') ?>";
+        url = "<?= base_url('kasir/transaksi/struk_pelunasan/') ?>" + id;
+        pesan = 'Pelunasan berhasil, struk diunduh...';
+    <?php endif; ?>
+
+    Swal.fire({
+        title: 'Berhasil!',
+        text: pesan,
+        icon: 'success',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        didOpen: () => {
+
+            // 🔥 DOWNLOAD STRUK
+            setTimeout(() => {
+                let link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                link.click();
+            }, 500);
+
+        }
+    });
+
+});
+</script>
 <?php endif; ?>
-            </td>
 
-            <!-- AKSI -->
-            <td>
 
-                <?php if ($p['status'] != 'keluar'): ?>
+<script>
+// ================= BERHENTIKAN =================
+function konfirmasiKeluar(id) {
 
-                    <?php if ($p['sisa_bayar'] > 0): ?>
-                        <a href="/kasir/transaksi/pelunasan/<?= $p['id_detail'] ?>" class="btn-pelunasan">
-                            Pelunasan
-                        </a>
-                    <?php endif; ?>
+    Swal.fire({
+        title: 'Yakin?',
+        text: "Penghuni akan dihentikan!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, berhentikan!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/kasir/penghuni/berhentikan/" + id;
+        }
+    });
 
-                    <a href="/kasir/transaksi/perpanjang/<?= $p['id_detail'] ?>" class="btn-perpanjang">
-                        Perpanjang
-                    </a>
+}
+</script>
+<!-- SCRIPT TOGGLE -->
+<script>
+    function toggleDetail(id) {
+        let row = document.getElementById('detail-' + id);
 
-                    <a href="/kasir/penghuni/berhentikan/<?= $p['id_penghuni'] ?>"
-                        class="btn-keluar"
-                        onclick="return confirm('Yakin penghuni keluar?')">
-                        Berhentikan
-                    </a>
-                                            
+        if (row.style.display === 'table-row') {
+            row.style.display = 'none';
+        } else {
+            row.style.display = 'table-row';
+        }
+    }
+</script>
 
-                <?php else: ?>
-                    -
-                <?php endif; ?>
-
-            </td>
-        </tr>
-    <?php endforeach; ?>
-</table>
 
 <?= $this->endSection() ?>

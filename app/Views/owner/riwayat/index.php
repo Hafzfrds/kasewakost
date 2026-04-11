@@ -5,20 +5,23 @@
 
 <div class="page-wrapper">
 
-    <!-- Header -->
-    <div class="page-header">
-        <h1>Riwayat Transaksi</h1>
-        <span class="badge-total">Total: <?= count($riwayat) ?> Record</span>
-        <form method="get" action="<?= base_url('owner/riwayat/exportPdf') ?>" target="_blank">
-    <input type="hidden" name="tanggal_awal" value="<?= $_GET['tanggal_awal'] ?? '' ?>">
-    <input type="hidden" name="tanggal_akhir" value="<?= $_GET['tanggal_akhir'] ?? '' ?>">
-    <input type="hidden" name="keyword" value="<?= $_GET['keyword'] ?? '' ?>">
+   <div class="page-header">
+    <h1>Riwayat Transaksi</h1>
 
-    <button type="submit" class="btn-search" style="background:#e74c3c;">
-        🧾 Export PDF
-    </button>
-</form>
+    <div class="header-right">
+        <span class="badge-total">Total: <?= count($riwayat) ?> Record</span>
+
+        <form method="get" action="<?= base_url('owner/riwayat/exportPdf') ?>" target="_blank">
+            <input type="hidden" name="tanggal_awal" value="<?= $_GET['tanggal_awal'] ?? '' ?>">
+            <input type="hidden" name="tanggal_akhir" value="<?= $_GET['tanggal_akhir'] ?? '' ?>">
+            <input type="hidden" name="keyword" value="<?= $_GET['keyword'] ?? '' ?>">
+
+            <button type="submit" class="btn-export">
+                 Export PDF
+            </button>
+        </form>
     </div>
+</div>
 
     <!-- Filter -->
     <form method="get" class="search-container">

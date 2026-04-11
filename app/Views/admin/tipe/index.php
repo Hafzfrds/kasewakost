@@ -1,6 +1,6 @@
 <?= $this->extend('layout/sidebaradmin') ?>
 <?= $this->section('content') ?>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="<?= base_url('css/admin/tipe/index.css') ?>">
 
 <div class="page-wrapper">
@@ -18,12 +18,7 @@
         <a href="/admin/tipe" class="btn-reset">Reset</a>
     </form>
 
-    <!-- Flash Message -->
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert-success">
-            <?= session()->getFlashdata('success') ?>
-        </div>
-    <?php endif; ?>
+
 
     <!-- Table -->
     <div class="table-wrapper">
@@ -37,25 +32,73 @@
                 </tr>
             </thead>
             <tbody>
-                <?php $no = 1; foreach ($tipe as $p): ?>
-                <tr>
-                    <td><?= $no++ ?></td>
-                    <td><?= esc($p['nama_tipe']) ?></td>
-                    <td><?= esc($p['fasilitas']) ?></td>
-                    <td>
-                        <div class="action-cell">
-                            <a href="/admin/tipe/edit/<?= $p['id_tipe'] ?>" class="btn-edit">Edit</a>
-                            <a href="/admin/tipe/delete/<?= $p['id_tipe'] ?>"
-                               onclick="return confirm('Yakin hapus?')"
-                               class="btn-delete">Hapus</a>
-                        </div>
-                    </td>
-                </tr>
+                <?php $no = 1;
+                foreach ($tipe as $p): ?>
+                    <tr>
+                        <td><?= $no++ ?></td>
+                        <td><?= esc($p['nama_tipe']) ?></td>
+                        <td><?= esc($p['fasilitas']) ?></td>
+                        <td>
+                            <div class="action-cell">
+                                <a href="/admin/tipe/edit/<?= $p['id_tipe'] ?>" class="btn-edit">Edit</a>
+                                <a href="/admin/tipe/delete/<?= $p['id_tipe'] ?>"
+                                    class="btn-delete btn-hapus"
+                                    data-id="<?= $p['id_tipe'] ?>">
+                                    Hapus
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 
 </div>
+<?php $success = session()->getFlashdata('success'); ?>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    // =========================
+    // SWEETALERT SUCCESS
+    // =========================
+    <?php if($success): ?>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '<?= $success ?>',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    <?php endif; ?>
+
+
+    // =========================
+    // KONFIRMASI HAPUS
+    // =========================
+    document.querySelectorAll('.btn-hapus').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.getAttribute('href');
+
+            Swal.fire({
+                title: 'Yakin hapus?',
+                text: "Data tipe akan dihapus permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+
+});
+</script>
 <?= $this->endSection() ?>

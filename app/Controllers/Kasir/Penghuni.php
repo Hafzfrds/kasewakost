@@ -6,56 +6,69 @@ use App\Controllers\BaseController;
 
 class Penghuni extends BaseController
 {
-    public function index()
-    {
-        $db = \Config\Database::connect();
+public function index()
+{
+    $db = \Config\Database::connect();
 
-        $builder = $db->table('detail_transaksi');
+    $builder = $db->table('detail_transaksi');
 
-        $builder->join('transaksi', 'transaksi.id_transaksi = detail_transaksi.id_transaksi');
-        $builder->join('penghuni', 'penghuni.id_penghuni = detail_transaksi.id_penghuni');
-        $builder->join('kamar', 'kamar.id_kamar = detail_transaksi.id_kamar');
+    $builder->join('transaksi', 'transaksi.id_transaksi = detail_transaksi.id_transaksi');
+    $builder->join('penghuni', 'penghuni.id_penghuni = detail_transaksi.id_penghuni');
+    $builder->join('kamar', 'kamar.id_kamar = detail_transaksi.id_kamar');
 
-        // ================= SELECT NORMAL =================
-        $builder->select('
-            penghuni.id_penghuni,
-            penghuni.status,
-            penghuni.nama_penghuni,
-            penghuni.id_kamar,
-            kamar.nama_kamar,
-            detail_transaksi.bayar as uang_masuk,
-            detail_transaksi.subtotal as total,
-            (detail_transaksi.subtotal - detail_transaksi.bayar) as sisa_bayar,
-            detail_transaksi.status_sewa,
-            detail_transaksi.id_detail
-        ');
+    // ================= SELECT =================
+    $builder->select('
+    penghuni.id_penghuni,
+    penghuni.nama_penghuni,
+    penghuni.status,
+    penghuni.nik,
+    penghuni.alamat,
+    penghuni.no_hp,
+    kamar.nomor_kamar as nama_kamar, 
+    detail_transaksi.bayar as uang_masuk,
+    detail_transaksi.subtotal as total,
+    (detail_transaksi.subtotal - detail_transaksi.bayar) as sisa_bayar,
+    detail_transaksi.status_sewa,
+    detail_transaksi.id_detail
+');
+    // ================= LOGIC TANGGAL =================
+    $builder->select("
+        CASE 
+            WHEN detail_transaksi.status_sewa = 'booking' 
+            THEN transaksi.tanggal_booking 
+            ELSE detail_transaksi.tanggal_masuk 
+        END as tanggal_masuk
+    ", false);
 
-        // ================= LOGIC TANGGAL =================
-        // 🔥 kalau masih booking → pakai tanggal booking
-        // 🔥 kalau sudah lunas (aktif) → pakai tanggal masuk asli
+    $builder->select("
+        CASE 
+            WHEN detail_transaksi.status_sewa = 'booking' 
+            THEN transaksi.jatuh_tempo_booking 
+            ELSE detail_transaksi.jatuh_tempo 
+        END as jatuh_tempo
+    ", false);
 
-        $builder->select("
-            CASE 
-                WHEN detail_transaksi.status_sewa = 'booking' 
-                THEN transaksi.tanggal_booking 
-                ELSE detail_transaksi.tanggal_masuk 
-            END as tanggal_masuk
-        ", false);
+    // ================= SEARCH =================
+    $keyword = $this->request->getGet('keyword');
 
-        $builder->select("
-            CASE 
-                WHEN detail_transaksi.status_sewa = 'booking' 
-                THEN transaksi.jatuh_tempo_booking 
-                ELSE detail_transaksi.jatuh_tempo 
-            END as jatuh_tempo
-        ", false);
-
-        $builder->orderBy('detail_transaksi.id_detail', 'DESC');
-
-        $data['penghuni'] = $builder->get()->getResultArray();
-
-        return view('kasir/penghuni/index', $data);
+    if ($keyword) {
+        $builder->groupStart()
+            ->like('penghuni.nama_penghuni', $keyword)
+            ->orLike('kamar.nomor_kamar', $keyword) // ✅ FIX
+            ->orLike('penghuni.status', $keyword)
+        ->groupEnd();
     }
+
+    // ================= ORDER =================
+    $builder->where('detail_transaksi.status_sewa !=', 'perpanjang');
+    $builder->orderBy('detail_transaksi.id_detail', 'DESC');
+
+    // ================= EXECUTE =================
+    $data['penghuni'] = $builder->get()->getResultArray();
+    $data['keyword'] = $keyword;
+
+    return view('kasir/penghuni/index', $data);
+}
 
     // =============================
     // BERHENTIKAN PENGHUNI

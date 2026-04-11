@@ -116,7 +116,9 @@ $detailModel->insert([
     'Bayar Langsung',
     'Bayar kamar ID ' . $id_kamar . ' total ' . $subtotal
 );
-   return redirect()->to('/kasir/transaksi/cetakStruk/' . $id_transaksi);
+   return redirect()->to('/kasir/produk')
+    ->with('success', 'Pembayaran berhasil!')
+    ->with('cetak', $id_transaksi);
 }
 
     // ===============================
@@ -233,7 +235,9 @@ $detailModel->insert([
         'Booking kamar ID ' . $id_kamar . ' DP ' . $dp
     );
 
-    return redirect()->to('/kasir/transaksi/cetakStruk/' . $id_transaksi);
+    return redirect()->to('/kasir/produk')
+    ->with('success', 'Booking berhasil! DP telah diterima')
+    ->with('cetak', $id_transaksi);
 }
 
     // ===============================
@@ -330,7 +334,9 @@ $detailModel->insert([
     );
 
     // ================= REDIRECT =================
-    return redirect()->to('/kasir/transaksi/struk_pelunasan/' . $id_detail);
+   return redirect()->to('/kasir/penghuni')
+    ->with('success', 'Pelunasan berhasil!')
+    ->with('cetak_pelunasan', $id_detail);
 }
     // ===============================
     // FORM PERPANJANG
@@ -357,7 +363,7 @@ $detailModel->insert([
     // ===============================
     // SIMPAN PERPANJANG
     // ===============================
-    public function simpanPerpanjang()
+   public function simpanPerpanjang()
 {
     $transaksiModel = new TransaksiModel();
     $detailModel    = new DetailTransaksiModel();
@@ -367,34 +373,26 @@ $detailModel->insert([
     $bayar          = (int) $this->request->getPost('bayar');
     $total          = (int) $this->request->getPost('total');
 
-    // =========================
-    // AMBIL DATA LAMA
-    // =========================
+    // ================= AMBIL DATA =================
     $detailLama = $detailModel->find($id_detail_lama);
     if (!$detailLama) {
         return redirect()->back()->with('error', 'Data tidak ditemukan');
     }
 
-    // =========================
-    // VALIDASI
-    // =========================
+    // ================= VALIDASI =================
     if ($bayar < $total) {
         return redirect()->back()->with('error', 'Uang tidak cukup untuk perpanjangan');
     }
 
     $kembalian = $bayar - $total;
 
-    // =========================
-    // HITUNG JATUH TEMPO BARU
-    // =========================
+    // ================= HITUNG JATUH TEMPO BARU =================
     $jatuhTempoBaru = date(
         'Y-m-d',
         strtotime($detailLama['jatuh_tempo'] . " +{$lama} month")
     );
 
-    // =========================
-    // 1. SIMPAN TRANSAKSI BARU
-    // =========================
+    // ================= SIMPAN TRANSAKSI (RIWAYAT) =================
     $transaksiModel->insert([
         'kode_transaksi'        => 'TRX' . date('YmdHis'),
         'nama_penanggung_jawab' => $detailLama['nama_penghuni'],
@@ -405,45 +403,30 @@ $detailModel->insert([
         'jenis_transaksi'       => 'perpanjang',
         'status'                => 'lunas'
     ]);
+ $id_transaksi = $transaksiModel->insertID(); // 🔥 WAJIB
+    // ================= UPDATE DETAIL (INI KUNCI 🔥) =================
+$detailModel->insert([
+    'id_transaksi' => $id_transaksi,
+    'id_kamar'     => $detailLama['id_kamar'], // ambil dari data lama
+    'id_penghuni'  => $detailLama['id_penghuni'], // biar nyambung
+    'harga'        => $detailLama['harga'],
+    'lama_sewa'    => $lama,
+    'tanggal_masuk'=> $detailLama['tanggal_masuk'],
+    'jatuh_tempo'  => $jatuhTempoBaru,
+    'subtotal'     => $total,
+    'bayar'        => $bayar,
+    'status_sewa'  => 'perpanjang'
+]);
 
-    $id_transaksi_baru = $transaksiModel->insertID();
-
-    // =========================
-    // 2. INSERT DETAIL BARU (INI KUNCI UTAMA 🔥)
-    // =========================
-    $detailModel->insert([
-        'id_transaksi'   => $id_transaksi_baru,
-        'id_kamar'       => $detailLama['id_kamar'],
-        'id_penghuni'    => $detailLama['id_penghuni'],
-        'nama_penghuni'  => $detailLama['nama_penghuni'],
-        'harga'          => $detailLama['harga'],
-        'lama_sewa'      => $lama,
-        'tanggal_masuk'  => $detailLama['tanggal_masuk'],
-        'jatuh_tempo'    => $jatuhTempoBaru,
-        'subtotal'       => $total,
-        'bayar'          => $bayar,
-        'status_sewa'    => 'aktif'
-    ]);
-
-    // =========================
-    // 3. UPDATE DETAIL LAMA (OPSIONAL TAPI DISARANKAN)
-    // =========================
-    $detailModel->update($id_detail_lama, [
-        'status_sewa' => 'selesai'
-    ]);
-
-    // =========================
-    // 4. LOG AKTIVITAS
-    // =========================
+    // ================= LOG =================
     $this->logAktivitas(
         'Perpanjang Sewa',
         'Perpanjang kamar ID ' . $detailLama['id_kamar'] . ' selama ' . $lama . ' bulan'
     );
 
-    // =========================
-    // 5. REDIRECT STRUK
-    // =========================
-    return redirect()->to(base_url('kasir/transaksi/struk_perpanjang/' . $id_transaksi_baru));
+    return redirect()->to('/kasir/penghuni')
+        ->with('success', 'Perpanjang berhasil!')
+          ->with('cetak_perpanjang', $id_transaksi); // 🔥 kirim ke view
 }
 public function cetakStruk($id_transaksi)
 {

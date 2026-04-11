@@ -2,14 +2,9 @@
 <?= $this->section('content') ?>
 
 <link rel="stylesheet" href="<?= base_url('css/kasir/transaksi/bayarlangsung.css') ?>">
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <h2 class="page-title">Pelunasan</h2>
 
-<?php if (session()->getFlashdata('error')) : ?>
-    <div class="alert-error">
-        <?= session()->getFlashdata('error'); ?>
-    </div>
-<?php endif; ?>
 
 <form action="/kasir/transaksi/pelunasan/simpan" method="post" class="form-card">
 
@@ -60,6 +55,18 @@
 
 </form>
 
+<?php if(session()->getFlashdata('error')): ?>
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Pelunasan Gagal',
+    text: '<?= session()->getFlashdata('error'); ?>',
+    confirmButtonColor: '#d33',
+    timer: 3000,
+    timerProgressBar: true
+});
+</script>
+<?php endif; ?>
 <script>
 document.getElementById('bayar').addEventListener('input', function(){
     let sisa = document.getElementById('sisa').value;

@@ -2,6 +2,7 @@
 <?= $this->section('content') ?>
 
 <link rel="stylesheet" href="<?= base_url('css/kasir/transaksi/bayarlangsung.css') ?>">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <h2 class="page-title">Bayar Langsung</h2>
 
@@ -19,12 +20,12 @@
     <!-- ================= PENANGGUNG JAWAB ================= -->
     <div class="form-group">
         <label>Nama Penanggung Jawab</label>
-        <input type="text" name="penanggung_jawab" required>
+        <input type="text" name="penanggung_jawab" value="<?= old('penanggung_jawab') ?>" required>
     </div>
 
     <div class="form-group">
         <label>No HP Penanggung Jawab</label>
-        <input type="text" name="no_hp" required>
+        <input type="text" name="no_hp" value="<?= old('no_hp') ?>" required>
     </div>
 
     <!-- ================= DATA KAMAR ================= -->
@@ -50,22 +51,22 @@
 
             <div class="form-group">
                 <label>Nama Penghuni 1</label>
-                <input type="text" name="penghuni1" required>
+                <input type="text" name="penghuni1" value="<?= old('penghuni1') ?>" required>
             </div>
 
             <div class="form-group">
                 <label>NIK Penghuni 1</label>
-                <input type="text" name="nik1" required>
+                <input type="text" name="nik1" value="<?= old('nik1') ?>" required>
             </div>
 
             <div class="form-group">
                 <label>No HP Penghuni 1</label>
-                <input type="text" name="hp1" required>
+                <input type="text" name="hp1" value="<?= old('hp1') ?>" required>
             </div>
 
             <div class="form-group">
                 <label>Alamat Penghuni 1</label>
-                <textarea name="alamat1" required></textarea>
+                <textarea name="alamat1" required><?= old('alamat1') ?></textarea>
             </div>
         </div>
 
@@ -77,22 +78,22 @@
 
             <div class="form-group">
                 <label>Nama Penghuni 2</label>
-                <input type="text" name="penghuni2">
+                <input type="text" name="penghuni2" value="<?= old('penghuni2') ?>">
             </div>
 
             <div class="form-group">
                 <label>NIK Penghuni 2</label>
-                <input type="text" name="nik2">
+                <input type="text" name="nik2" value="<?= old('nik2') ?>">
             </div>
 
             <div class="form-group">
                 <label>No HP Penghuni 2</label>
-                <input type="text" name="hp2">
+                <input type="text" name="hp2" value="<?= old('hp2') ?>">
             </div>
 
             <div class="form-group">
                 <label>Alamat Penghuni 2</label>
-                <textarea name="alamat2"></textarea>
+                <textarea name="alamat2"><?= old('alamat2') ?></textarea>
             </div>
         </div>
 
@@ -104,24 +105,24 @@
         <div class="form-col">
             <div class="form-group">
                 <label>Tanggal Masuk</label>
-                <input type="date" id="tanggal_masuk" name="tanggal_masuk" required>
+                <input type="date" id="tanggal_masuk" name="tanggal_masuk" value="<?= old('tanggal_masuk') ?>" required>
             </div>
 
             <div class="form-group">
                 <label>Lama Sewa (bulan)</label>
-                <input type="number" id="lama_sewa" name="lama_sewa" value="1" min="1">
+                <input type="number" id="lama_sewa" name="lama_sewa" value="<?= old('lama_sewa') ?: 1 ?>" min="1">
             </div>
         </div>
 
         <div class="form-col">
             <div class="form-group">
                 <label>Tanggal Jatuh Tempo</label>
-                <input type="date" id="jatuh_tempo" name="jatuh_tempo" readonly>
+                <input type="date" id="jatuh_tempo" name="jatuh_tempo" value="<?= old('jatuh_tempo') ?>" readonly>
             </div>
 
             <div class="form-group">
                 <label>Total Harga</label>
-                <input type="text" id="total" readonly>
+                <input type="text" id="total" value="<?= old('total') ?>" readonly>
             </div>
         </div>
 
@@ -130,7 +131,7 @@
     <!-- ================= PEMBAYARAN ================= -->
     <div class="form-group">
         <label>Uang Bayar</label>
-        <input type="number" id="bayar" name="bayar" required>
+        <input type="number" id="bayar" name="bayar" value="<?= old('bayar') ?>" required>
     </div>
 
     <div class="form-footer">
@@ -141,11 +142,27 @@
     </div>
 
 </form>
-
+<?php if(session()->getFlashdata('error')): ?>
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Pembayaran Gagal',
+    text: '<?= session()->getFlashdata('error'); ?>',
+    confirmButtonColor: '#d33',
+    timer: 3000,
+    timerProgressBar: true
+});
+</script>
+<?php endif; ?>
 <script>
 document.getElementById('tanggal_masuk').addEventListener('change', hitung);
 document.getElementById('lama_sewa').addEventListener('input', hitung);
 document.getElementById('bayar').addEventListener('input', hitungKembalian);
+
+// 🔥 AUTO HITUNG SAAT LOAD (BIAR DATA BALIK)
+window.onload = function(){
+    hitung();
+}
 
 function hitung() {
     let harga = document.getElementById('harga').value;

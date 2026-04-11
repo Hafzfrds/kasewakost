@@ -57,7 +57,8 @@ class UserController extends BaseController
             'Menambahkan user ' . $username
         );
 
-        return redirect()->to('/admin/user');
+        return redirect()->to('/admin/user')
+    ->with('success', 'Data user berhasil ditambahkan');
     }
 
     public function edit($id)
@@ -102,7 +103,8 @@ class UserController extends BaseController
             );
         }
 
-        return redirect()->to('/admin/user');
+       return redirect()->to('/admin/user')
+    ->with('success', 'Data user berhasil diupdate');
     }
 
     // DELETE USER
@@ -120,6 +122,7 @@ class UserController extends BaseController
             'Menghapus user ' . $user['username']
         );
 
-        return redirect()->to('/admin/user');
+        return redirect()->to('/admin/user')
+    ->with('success', 'Data user berhasil dihapus');
     }
 }

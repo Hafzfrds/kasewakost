@@ -1,13 +1,9 @@
 <?= $this->extend('layout/sidebarkasir') ?>
 <?= $this->section('content') ?>
 <link rel="stylesheet" href="<?= base_url('css/kasir/transaksi/bayarlangsung.css') ?>">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <h2 class="page-title">Perpanjang Sewa Kost</h2>
 
-<?php if (session()->getFlashdata('error')) : ?>
-    <div class="alert-error">
-        <?= session()->getFlashdata('error'); ?>
-    </div>
-<?php endif; ?>
 
 <form action="/kasir/transaksi/perpanjang/simpan" method="post" class="form-card">
 
@@ -57,7 +53,18 @@
     </div>
 
 </form>
-
+<?php if(session()->getFlashdata('error')): ?>
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Perpanjangan Gagal',
+    text: '<?= session()->getFlashdata('error'); ?>',
+    confirmButtonColor: '#d33',
+    timer: 3000,
+    timerProgressBar: true
+});
+</script>
+<?php endif; ?>
 <script>
 document.getElementById('bulan').addEventListener('input', function(){
     let bulan = this.value;
