@@ -55,14 +55,15 @@
     </div>
 
 </div>
-<?php $success = session()->getFlashdata('success'); ?>
 
+<?php 
+$success = session()->getFlashdata('success');
+$error   = session()->getFlashdata('error');
+?>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-    // =========================
     // SWEETALERT SUCCESS
-    // =========================
     <?php if($success): ?>
         Swal.fire({
             icon: 'success',
@@ -73,10 +74,17 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     <?php endif; ?>
 
+    // SWEETALERT ERROR
+    <?php if($error): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '<?= $error ?>',
+            confirmButtonColor: '#e74c3c'
+        });
+    <?php endif; ?>
 
-    // =========================
     // KONFIRMASI HAPUS
-    // =========================
     document.querySelectorAll('.btn-hapus').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();

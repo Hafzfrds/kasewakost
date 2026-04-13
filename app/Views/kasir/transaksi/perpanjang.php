@@ -17,7 +17,7 @@
 
     <div class="form-group">
         <label>Kamar</label>
-        <input type="text" value="<?= $detail['nama_kamar'] ?>" readonly>
+        <input type="text" value=<?= esc($detail['nama_kamar']) . '-' . str_pad($detail['nomor_kamar'], 2, '0', STR_PAD_LEFT) ?> readonly>
     </div>
 
     <div class="form-group">

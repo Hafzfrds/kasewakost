@@ -28,6 +28,13 @@
         th {
             background: #eee;
         }
+
+        .total {
+            margin-top: 15px;
+            text-align: right;
+            font-weight: bold;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -43,23 +50,31 @@
             <th>Tanggal</th>
             <th>Jenis</th>
             <th>Total</th>
-            <th>Status</th>
         </tr>
     </thead>
+
     <tbody>
-        <?php foreach($riwayat as $r): ?>
+        <?php 
+        $totalPendapatan = 0;
+        foreach($riwayat as $r): 
+            $totalPendapatan += $r['total'];
+        ?>
         <tr>
             <td><?= $r['kode_transaksi'] ?></td>
-            <td><?= $r['nama_penghuni'] ?? $r['nama_penanggung_jawab'] ?></td>
+            <td><?= $r['nama_penghuni'] ?? '-' ?></td>
             <td><?= $r['nama_kamar'] ?? '-' ?></td>
             <td><?= date('d-m-Y', strtotime($r['tanggal_transaksi'])) ?></td>
             <td><?= $r['jenis_transaksi'] ?></td>
             <td>Rp <?= number_format($r['total'],0,',','.') ?></td>
-            <td><?= strtoupper($r['status']) ?></td>
         </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
+
+<!-- TOTAL PENDAPATAN -->
+<div class="total">
+    Total Pendapatan: Rp <?= number_format($totalPendapatan, 0, ',', '.') ?>
+</div>
 
 </body>
 </html>

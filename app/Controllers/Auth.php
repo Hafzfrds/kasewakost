@@ -23,7 +23,7 @@ class Auth extends BaseController
 
         if ($user) {
 
-            // 🔒 CEK STATUS USER
+            //  CEK STATUS USER
             if ($user['status_user'] == 'nonaktif') {
                 return redirect()->back()->with('error', 'User tidak aktif');
             }
@@ -39,7 +39,7 @@ class Auth extends BaseController
 
                 $session->set($data);
 
-                // ✅ LOG LOGIN
+                // LOG 
                 logActivity('LOGIN', 'User login ke sistem');
 
                 if ($user['role'] == 'admin') {
@@ -65,10 +65,9 @@ class Auth extends BaseController
 
     public function logout()
     {
-        // ambil username sebelum session dihancurkan
         $username = session()->get('username');
 
-        // ✅ LOG LOGOUT
+        // LOG 
         logActivity('LOGOUT', 'User logout dari sistem');
 
         session()->destroy();

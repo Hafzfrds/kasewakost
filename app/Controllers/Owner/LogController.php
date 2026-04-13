@@ -19,16 +19,17 @@ class LogController extends BaseController
                 ->orLike('aktivitas', $keyword)
                 ->orLike('keterangan', $keyword)
                 ->orderBy('tanggal', 'DESC')
-                ->findAll();
+                ->paginate(10); // 10 data per halaman
         } else {
             $log = $model
                 ->orderBy('tanggal', 'DESC')
-                ->findAll();
+                ->paginate(10);
         }
 
         $data = [
             'log' => $log,
-            'keyword' => $keyword
+            'keyword' => $keyword,
+            'pager' => $model->pager
         ];
 
         return view('owner/log_activity', $data);

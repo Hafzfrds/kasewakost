@@ -11,10 +11,8 @@ class User extends BaseController
         $db = \Config\Database::connect();
         $builder = $db->table('users');
 
-        // Ambil keyword dari GET
+  
         $keyword = $this->request->getGet('keyword');
-
-        // Jika ada keyword → lakukan pencarian
         if ($keyword) {
             $builder->groupStart()
                 ->like('username', $keyword)
@@ -23,7 +21,6 @@ class User extends BaseController
                 ->groupEnd();
         }
 
-        // Ambil data
         $data['user'] = $builder->get()->getResult();
 
         return view('owner/user_lihat', $data);

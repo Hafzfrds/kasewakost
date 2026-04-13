@@ -21,6 +21,7 @@ class TransaksiModel extends Model
         'status',
         'tanggal_booking',
         'jatuh_tempo_booking',
+        'user_id',
         'created_at',
         'updated_at'
     ];

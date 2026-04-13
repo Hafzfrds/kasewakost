@@ -32,7 +32,9 @@
 
                 <!-- BODY -->
                 <div class="card-body">
-                    <div class="card-nama"><?= esc($k['nama_kamar']) ?></div>
+                    <div class="card-nama">
+    <?= esc($k['nama_kamar']) . '-' . str_pad($k['nomor_kamar'], 2, '0', STR_PAD_LEFT) ?>
+</div>
 
                     <div class="card-tipe">
                         <strong><?= esc($k['nama_tipe'] ?? '-') ?>:</strong>
@@ -70,40 +72,57 @@
     </div>
 
 </div>
-<?php if(session()->getFlashdata('success')): ?>
+<?php 
+$success = session()->getFlashdata('success');
+$error   = session()->getFlashdata('error');
+?>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: '<?= session()->getFlashdata('success'); ?>',
-        showConfirmButton: false,
-        timer: 2000
-    });
-});
-</script>
-<?php endif; ?>
-<script>
-document.querySelectorAll('.btn-hapus').forEach(button => {
-    button.addEventListener('click', function(e) {
-        e.preventDefault();
-        const url = this.getAttribute('href');
 
+    // SUCCESS ALERT
+    <?php if($success): ?>
         Swal.fire({
-            title: 'Yakin hapus?',
-            text: "Data kamar akan dihapus permanen!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#e74c3c',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = url;
-            }
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '<?= $success ?>',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    <?php endif; ?>
+
+    // ERROR ALERT
+    <?php if($error): ?>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '<?= $error ?>',
+            confirmButtonColor: '#e74c3c'
+        });
+    <?php endif; ?>
+
+    // KONFIRMASI HAPUS
+    document.querySelectorAll('.btn-hapus').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.getAttribute('href');
+
+            Swal.fire({
+                title: 'Yakin hapus?',
+                text: "Data kamar akan dihapus permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
         });
     });
+
 });
 </script>
 <?= $this->endSection() ?>

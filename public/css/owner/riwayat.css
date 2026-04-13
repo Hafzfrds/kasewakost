@@ -224,3 +224,15 @@
 .btn-export:hover {
     background: #c0392b;
 }
+
+/* ===== PENDAPATAN HARI INI ===== */
+.badge-income {
+    background-color: #3b82c4; /* biru utama seperti header tabel */
+    color: #ffffff;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: inline-block;
+}

@@ -116,18 +116,30 @@ class KamarController extends BaseController
     }
 
     // HAPUS KAMAR
-    public function delete($id)
-    {
-        $kamar = $this->kamarModel->find($id);
+   public function delete($id)
+{
+    $kamar = $this->kamarModel->find($id);
 
-        $this->kamarModel->delete($id);
-
-        // LOG ACTIVITY
-        logActivity(
-            'DELETE KAMAR',
-            'Menghapus kamar nomor ' . $kamar['nomor_kamar']
-        );
-
-        return redirect()->to('/admin/kamar')->with('success', 'Data kamar berhasil dihapus');
+    if (!$kamar) {
+        return redirect()->to('/admin/kamar')
+            ->with('error', 'Data kamar tidak ditemukan');
     }
+
+    // CEK STATUS KAMAR 
+    if ($kamar['status_kamar'] === 'terisi' || $kamar['status_kamar'] === 'booking') {
+        return redirect()->to('/admin/kamar')
+            ->with('error', 'Kamar tidak bisa dihapus karena sedang terisi atau dibooking');
+    }
+
+    $this->kamarModel->delete($id);
+
+    // LOG ACTIVITY
+    logActivity(
+        'DELETE KAMAR',
+        'Menghapus kamar nomor ' . $kamar['nomor_kamar']
+    );
+
+    return redirect()->to('/admin/kamar')
+        ->with('success', 'Data kamar berhasil dihapus');
+}
 }

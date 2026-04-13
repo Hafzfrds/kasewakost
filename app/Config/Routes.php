@@ -56,6 +56,11 @@ $routes->group('admin', function($routes) {
 
 $routes->group('kasir', function($routes) {
 
+    // =====================
+    // TRANSAKSI INDEX
+    // =====================
+    $routes->get('transaksi', 'Kasir\Transaksi::index');
+
     // STRUK PDF
     $routes->get('transaksi/cetakStruk/(:num)', 'Kasir\Transaksi::cetakStruk/$1');
  $routes->get('transaksi/struk_pelunasan/(:num)', 'Kasir\Transaksi::struk_pelunasan/$1');

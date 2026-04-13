@@ -6,73 +6,70 @@ use App\Controllers\BaseController;
 
 class Penghuni extends BaseController
 {
-public function index()
-{
-    $db = \Config\Database::connect();
+    public function index()
+    {
+        $db = \Config\Database::connect();
 
-    $builder = $db->table('detail_transaksi');
+        $builder = $db->table('detail_transaksi');
+        $builder->join('transaksi', 'transaksi.id_transaksi = detail_transaksi.id_transaksi');
+        $builder->join('kamar', 'kamar.id_kamar = detail_transaksi.id_kamar');
+        $builder->select('
+            kamar.nama_kamar,
+            kamar.nomor_kamar,
+            detail_transaksi.bayar as uang_masuk,
+            detail_transaksi.subtotal as total,
+            (detail_transaksi.subtotal - detail_transaksi.bayar) as sisa_bayar,
+            detail_transaksi.status_sewa,
+            detail_transaksi.id_detail,
+            detail_transaksi.id_kamar
+        ');
 
-    $builder->join('transaksi', 'transaksi.id_transaksi = detail_transaksi.id_transaksi');
-    $builder->join('penghuni', 'penghuni.id_penghuni = detail_transaksi.id_penghuni');
-    $builder->join('kamar', 'kamar.id_kamar = detail_transaksi.id_kamar');
+      
+        $builder->select("
+            CASE 
+                WHEN detail_transaksi.status_sewa = 'booking' 
+                THEN transaksi.tanggal_booking 
+                ELSE detail_transaksi.tanggal_masuk 
+            END as tanggal_masuk
+        ", false);
 
-    // ================= SELECT =================
-    $builder->select('
-    penghuni.id_penghuni,
-    penghuni.nama_penghuni,
-    penghuni.status,
-    penghuni.nik,
-    penghuni.alamat,
-    penghuni.no_hp,
-    kamar.nomor_kamar as nama_kamar, 
-    detail_transaksi.bayar as uang_masuk,
-    detail_transaksi.subtotal as total,
-    (detail_transaksi.subtotal - detail_transaksi.bayar) as sisa_bayar,
-    detail_transaksi.status_sewa,
-    detail_transaksi.id_detail
-');
-    // ================= LOGIC TANGGAL =================
-    $builder->select("
-        CASE 
-            WHEN detail_transaksi.status_sewa = 'booking' 
-            THEN transaksi.tanggal_booking 
-            ELSE detail_transaksi.tanggal_masuk 
-        END as tanggal_masuk
-    ", false);
+        $builder->select("
+            CASE 
+                WHEN detail_transaksi.status_sewa = 'booking' 
+                THEN transaksi.jatuh_tempo_booking 
+                ELSE detail_transaksi.jatuh_tempo 
+            END as jatuh_tempo
+        ", false);
 
-    $builder->select("
-        CASE 
-            WHEN detail_transaksi.status_sewa = 'booking' 
-            THEN transaksi.jatuh_tempo_booking 
-            ELSE detail_transaksi.jatuh_tempo 
-        END as jatuh_tempo
-    ", false);
+        $keyword = $this->request->getGet('keyword');
 
-    // ================= SEARCH =================
-    $keyword = $this->request->getGet('keyword');
+        if ($keyword) {
+            $builder->groupStart()
+                ->like('kamar.nomor_kamar', $keyword)
+                ->groupEnd();
+        }
 
-    if ($keyword) {
-        $builder->groupStart()
-            ->like('penghuni.nama_penghuni', $keyword)
-            ->orLike('kamar.nomor_kamar', $keyword) // ✅ FIX
-            ->orLike('penghuni.status', $keyword)
-        ->groupEnd();
+       
+        $builder->where('detail_transaksi.status_sewa !=', 'perpanjang');
+        $builder->orderBy('detail_transaksi.id_detail', 'DESC');
+
+       
+        $dataDetail = $builder->get()->getResultArray();
+
+        foreach ($dataDetail as &$d) {
+            $d['list_penghuni'] = $db->table('penghuni')
+                ->where('id_detail', $d['id_detail'])
+                ->get()
+                ->getResultArray();
+        }
+
+        $data['dataDetail'] = $dataDetail;
+        $data['keyword'] = $keyword;
+
+        return view('kasir/penghuni/index', $data);
     }
 
-    // ================= ORDER =================
-    $builder->where('detail_transaksi.status_sewa !=', 'perpanjang');
-    $builder->orderBy('detail_transaksi.id_detail', 'DESC');
 
-    // ================= EXECUTE =================
-    $data['penghuni'] = $builder->get()->getResultArray();
-    $data['keyword'] = $keyword;
-
-    return view('kasir/penghuni/index', $data);
-}
-
-    // =============================
-    // BERHENTIKAN PENGHUNI
-    // =============================
     public function berhentikan($id_penghuni)
     {
         $db = \Config\Database::connect();
@@ -93,7 +90,7 @@ public function index()
 
         $db->transStart();
 
-        // 1. Update penghuni
+       
         $db->table('penghuni')
             ->where('id_penghuni', $id_penghuni)
             ->update([
@@ -101,7 +98,7 @@ public function index()
                 'tanggal_keluar' => date('Y-m-d')
             ]);
 
-        // 2. Update kamar
+     
         if ($detail && $detail['id_kamar']) {
             $db->table('kamar')
                 ->where('id_kamar', $detail['id_kamar'])
@@ -110,7 +107,7 @@ public function index()
                 ]);
         }
 
-        // 3. Update detail transaksi
+       
         $db->table('detail_transaksi')
             ->where('id_detail', $penghuni['id_detail'])
             ->update([

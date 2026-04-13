@@ -88,18 +88,31 @@ class TipeController extends BaseController
     }
 
     // DELETE
-    public function delete($id)
-    {
-        $tipe = $this->tipeModel->find($id);
+  public function delete($id)
+{
+    $db = \Config\Database::connect();
 
-        $this->tipeModel->delete($id);
+    // cek apakah tipe dipakai di tabel kamar
+    $cek = $db->table('kamar')
+        ->where('id_tipe', $id)
+        ->countAllResults();
 
-        // LOG
-        logActivity(
-            'DELETE TIPE',
-            'Menghapus tipe kamar ' . $tipe['nama_tipe']
-        );
-
-        return redirect()->to('/admin/tipe')->with('success', 'Tipe berhasil dihapus');
+    if ($cek > 0) {
+        return redirect()->to('/admin/tipe')
+            ->with('error', 'Tipe tidak bisa dihapus karena masih digunakan oleh kamar');
     }
+
+    $tipe = $this->tipeModel->find($id);
+
+    $this->tipeModel->delete($id);
+
+    // LOG
+    logActivity(
+        'DELETE TIPE',
+        'Menghapus tipe kamar ' . $tipe['nama_tipe']
+    );
+
+    return redirect()->to('/admin/tipe')
+        ->with('success', 'Tipe berhasil dihapus');
+}
 }

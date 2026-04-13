@@ -34,30 +34,40 @@
                     <th>Keterangan</th>
                 </tr>
             </thead>
+
             <tbody>
                 <?php if (!empty($log)) : ?>
-                    <?php $no = 1; foreach ($log as $l) : ?>
+
+                    <?php 
+                    $no = 1 + (10 * ($pager->getCurrentPage() - 1));
+                    foreach ($log as $l) : 
+                    ?>
+
                         <tr>
                             <td><?= $no++ ?></td>
                             <td><?= date('d-m-Y H:i', strtotime($l['tanggal'])) ?></td>
                             <td><?= $l['username'] ?></td>
                             <td><?= ucfirst($l['role']) ?></td>
+
                             <td style="text-align:center;">
-                          <?php
-    $badgeClass = 'badge-info';
-    if ($l['aktivitas'] == 'LOGIN')  $badgeClass = 'badge-login';
-    if ($l['aktivitas'] == 'LOGOUT') $badgeClass = 'badge-logout';
-    if ($l['aktivitas'] == 'DELETE') $badgeClass = 'badge-delete';
-    if ($l['aktivitas'] == 'UPDATE') $badgeClass = 'badge-update';
-    if ($l['aktivitas'] == 'CREATE') $badgeClass = 'badge-info';
-?>
-<span class="badge-activity <?= $badgeClass ?>">
-    <?= $l['aktivitas'] ?>
-</span>
+                                <?php
+                                    $badgeClass = 'badge-info';
+                                    if ($l['aktivitas'] == 'LOGIN')  $badgeClass = 'badge-login';
+                                    if ($l['aktivitas'] == 'LOGOUT') $badgeClass = 'badge-logout';
+                                    if ($l['aktivitas'] == 'DELETE') $badgeClass = 'badge-delete';
+                                    if ($l['aktivitas'] == 'UPDATE') $badgeClass = 'badge-update';
+                                    if ($l['aktivitas'] == 'CREATE') $badgeClass = 'badge-info';
+                                ?>
+                                <span class="badge-activity <?= $badgeClass ?>">
+                                    <?= $l['aktivitas'] ?>
+                                </span>
                             </td>
+
                             <td><?= $l['keterangan'] ?></td>
                         </tr>
+
                     <?php endforeach ?>
+
                 <?php else : ?>
                     <tr>
                         <td colspan="6" class="td-empty">Tidak ada data log</td>
@@ -65,6 +75,11 @@
                 <?php endif ?>
             </tbody>
         </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container">
+        <?= $pager->links() ?>
     </div>
 
 </div>

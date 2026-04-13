@@ -17,21 +17,12 @@
     <input type="hidden" name="id_kamar" value="<?= $kamar['id_kamar']; ?>">
     <input type="hidden" id="harga" name="harga" value="<?= $kamar['harga']; ?>">
 
-    <!-- ================= PENANGGUNG JAWAB ================= -->
-    <div class="form-group">
-        <label>Nama Penanggung Jawab</label>
-        <input type="text" name="penanggung_jawab" value="<?= old('penanggung_jawab') ?>" required>
-    </div>
+   
 
-    <div class="form-group">
-        <label>No HP Penanggung Jawab</label>
-        <input type="text" name="no_hp" value="<?= old('no_hp') ?>" required>
-    </div>
-
-    <!-- ================= DATA KAMAR ================= -->
+    <!-- DATA KAMAR -->
     <div class="form-group">
         <label>Kamar Dipilih</label>
-        <input type="text" value="<?= $kamar['nama_kamar']; ?>" readonly>
+        <input type="text" value="<?= esc($kamar['nama_kamar']) . '-' . str_pad($kamar['nomor_kamar'] ?? 0, 2, '0', STR_PAD_LEFT) ?>" readonly>
     </div>
 
     <div class="form-group">
@@ -39,7 +30,7 @@
         <input type="text" value="<?= $kamar['harga']; ?>" readonly>
     </div>
 
-    <!-- ================= PENGHUNI ================= -->
+    <!--PENGHUNI-->
     <div class="form-row">
 
         <!-- Penghuni 1 -->
@@ -99,7 +90,7 @@
 
     </div>
 
-    <!-- ================= SEWA ================= -->
+    <!--SEWA-->
     <div class="form-row">
 
         <div class="form-col">
@@ -128,7 +119,7 @@
 
     </div>
 
-    <!-- ================= PEMBAYARAN ================= -->
+    <!-- PEMBAYARAN -->
     <div class="form-group">
         <label>Uang Bayar</label>
         <input type="number" id="bayar" name="bayar" value="<?= old('bayar') ?>" required>
@@ -159,7 +150,6 @@ document.getElementById('tanggal_masuk').addEventListener('change', hitung);
 document.getElementById('lama_sewa').addEventListener('input', hitung);
 document.getElementById('bayar').addEventListener('input', hitungKembalian);
 
-// 🔥 AUTO HITUNG SAAT LOAD (BIAR DATA BALIK)
 window.onload = function(){
     hitung();
 }

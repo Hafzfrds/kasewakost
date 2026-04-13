@@ -37,17 +37,32 @@
                 </select>
             </div>
 
+            <!-- STATUS (SUDAH ADA BOOKING) -->
             <div class="form-group">
                 <label>Status:</label>
                 <select name="status_kamar">
                     <option value="tersedia">Tersedia</option>
                     <option value="terisi">Terisi</option>
+                    <option value="booking">Booking</option>
                 </select>
             </div>
 
+            <!-- PREVIEW FOTO -->
             <div class="form-group">
-                <label>Foto Kamar:</label>
-                <input type="file" name="foto">
+                <label>Preview Foto:</label>
+
+                <img id="preview-img"
+                     src=""
+                     alt="Preview Foto"
+                     style="max-width:200px; display:none; border-radius:8px; margin-top:10px;">
+
+                <p id="no-img-text" class="foto-none">Belum ada foto dipilih</p>
+            </div>
+
+            <!-- UPLOAD FOTO -->
+            <div class="form-group">
+                <label>Upload Foto:</label>
+                <input type="file" name="foto" id="foto" accept="image/*" onchange="previewFoto(event)">
             </div>
 
             <hr class="form-divider">
@@ -60,5 +75,25 @@
         </form>
     </div>
 </div>
+
+<script>
+function previewFoto(event) {
+    const input = event.target;
+    const preview = document.getElementById('preview-img');
+    const text = document.getElementById('no-img-text');
+
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            text.style.display = 'none';
+        }
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
 
 <?= $this->endSection() ?>

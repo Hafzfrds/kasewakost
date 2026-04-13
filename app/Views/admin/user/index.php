@@ -64,9 +64,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
-    // =========================
     // SWEETALERT SUCCESS
-    // =========================
     <?php if($success): ?>
         Swal.fire({
             icon: 'success',
@@ -77,10 +75,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     <?php endif; ?>
 
-
-    // =========================
     // KONFIRMASI HAPUS
-    // =========================
     document.querySelectorAll('.btn-hapus').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
